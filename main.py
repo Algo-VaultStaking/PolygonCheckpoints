@@ -7,7 +7,7 @@ from discord.ext import commands, tasks
 import secrets
 from checkpoint_db import get_latest_saved_checkpoint, get_last_validator_checkpoint, \
     update_validator_checkpoint, get_val_name_from_id, get_val_contacts_from_id, set_new_checkpoint, send_email
-from logger import log
+
 
 token = secrets.DISCORD_TOKEN
 bot = commands.Bot(command_prefix='$')
@@ -34,24 +34,26 @@ async def check_latest_checkpoint():
             "https://sentinel.matic.network/api/v2/validators/" + str(index) + "/checkpoints-signed").read()
         estimated_checkpoints.append(json.loads(contents)["result"][0]["checkpointNumber"])
 
-    latest_checkpoint = max(estimated_checkpoints)
+    current_checkpoint = max(estimated_checkpoints)
     saved_checkpoint = get_latest_saved_checkpoint()
 
     #if there is a new checkpoint we haven't evaluated yet
-    if latest_checkpoint > saved_checkpoint:
+    if current_checkpoint > saved_checkpoint:
         log("New Checkpoint")
-        await get_new_checkpoint(latest_checkpoint)
+        await get_new_checkpoint(current_checkpoint, saved_checkpoint)
         return True
     else:
         log("No new Checkpoint")
         return False
 
-async def get_new_checkpoint(latest_checkpoint: int):
+async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int):
     await bot.wait_until_ready()
     channel = bot.get_channel(id=secrets.MISSED_CHECKPOINTS_CHANNEL)
-    notify_missed_cp = [3, 6, 10, 20, 35, 50, 100, 200]
+    notify_missed_cp = [2, 5, 9, 19, 34, 49, 99, 199]
+    for i in range(len(notify_missed_cp)):
+        notify_missed_cp += (current_checkpoint - last_saved_checkpoint)
 
-    set_new_checkpoint(str(latest_checkpoint))
+    set_new_checkpoint(str(current_checkpoint))
     for i in range(1, secrets.total_validators + 1):
         contents = urllib.request.urlopen(
             "https://sentinel.matic.network/api/v2/validators/" + str(i) + "/checkpoints-signed").read()
@@ -60,16 +62,16 @@ async def get_new_checkpoint(latest_checkpoint: int):
 
             # notify me
             if i == 37:
-                if latest_checkpoint != validator_checkpoint or latest_checkpoint % 1 == 0:
-                    send_email(latest_checkpoint, validator_checkpoint)
+                if current_checkpoint != validator_checkpoint or current_checkpoint % 1 == 0:
+                    send_email(current_checkpoint, validator_checkpoint)
 
             # notify if a validator missed a checkpoint
-            if (latest_checkpoint - validator_checkpoint) in notify_missed_cp:
+            if (current_checkpoint - validator_checkpoint) in notify_missed_cp:
                 await channel.send(get_val_contacts_from_id(str(i)) + ", please check **" + get_val_name_from_id(str(i)) + "**, " \
-                                      "it has missed the last " + str((latest_checkpoint - validator_checkpoint)) + " checkpoints.")
+                                      "it has missed the last " + str((current_checkpoint - validator_checkpoint)) + " checkpoints.")
 
             # check if the validator is back in sync
-            elif (latest_checkpoint - validator_checkpoint) == 0 and get_last_validator_checkpoint(str(i)) != latest_checkpoint-1:
+            elif (current_checkpoint - validator_checkpoint) == 0 and get_last_validator_checkpoint(str(i)) - current_checkpoint >= 4:
                 await channel.send(get_val_contacts_from_id(str(i)) + ", " + get_val_name_from_id(str(i)) + " is back in sync.")
 
             # save validator's latest checkpoint
