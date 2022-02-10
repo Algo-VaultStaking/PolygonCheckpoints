@@ -1,6 +1,6 @@
 import json
 import urllib.request
-from logger import log
+from logger import raw_audit_log
 
 from discord.ext import commands, tasks
 
@@ -15,8 +15,8 @@ bot = commands.Bot(command_prefix='$')
 
 @bot.event
 async def on_ready():
-    log(f'Logged in as {bot.user} (ID: {bot.user.id})')
-    log('-----------------')
+    raw_audit_log(f'Logged in as {bot.user} (ID: {bot.user.id})')
+    raw_audit_log('-----------------')
 
 @bot.command(name='status', help='usage: faucet-send  [address] [tokens')
 async def status(ctx):
@@ -24,7 +24,7 @@ async def status(ctx):
 
 @tasks.loop(minutes = 1)
 async def check_latest_checkpoint():
-    log('Checking for new checkpoint')
+    raw_audit_log('Checking for new checkpoint')
 
     trusted_validators = [1, 2, 3, 4, 5, 12, 13, 15, 32, 37, 97, 123]
     estimated_checkpoints = []
@@ -39,11 +39,10 @@ async def check_latest_checkpoint():
 
     #if there is a new checkpoint we haven't evaluated yet
     if current_checkpoint > saved_checkpoint:
-        log("New Checkpoint")
+        raw_audit_log("New Checkpoint: ")
         await get_new_checkpoint(current_checkpoint, saved_checkpoint)
         return True
     else:
-        log("No new Checkpoint")
         return False
 
 async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int):
@@ -79,9 +78,9 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
             update_validator_checkpoint(str(i), str(validator_checkpoint))
 
         except Exception as e:
-            log(e)
+            raw_audit_log(e)
     await vault_checkpoint_channel.send("Completed Checkpoint: " + str(current_checkpoint))
-    log("done")
+    raw_audit_log("done")
 
 
 check_latest_checkpoint.start()

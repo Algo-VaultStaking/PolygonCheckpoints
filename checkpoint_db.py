@@ -2,11 +2,10 @@ import json
 import smtplib
 import urllib.request
 from datetime import datetime
-
 import mariadb
 
 import secrets
-from logger import log
+from logger import raw_audit_log
 
 
 # Connect to MariaDB Platform
@@ -24,7 +23,7 @@ def connection():
 
 
     except mariadb.Error as e:
-        log(f"Error connecting to MariaDB Platform: {e}")
+        raw_audit_log(f"Error connecting to MariaDB Platform: {e}")
         exit()
 
 
@@ -67,7 +66,7 @@ def initial_setup():
         cur.close()
         conn.close()
     except mariadb.Error as e:
-        log(f"Error: {e}")
+        raw_audit_log(f"Error: {e}")
 
 
 def orig():
@@ -254,9 +253,9 @@ Subject: New Checkpoint\n
         server.sendmail(sent_from, to, email_text)
         server.close()
 
-        print("Email sent!")
+        raw_audit_log("Email sent!")
     except Exception as ex:
-        print(ex)
+        raw_audit_log(str(ex))
 
 
 def update_contacts():
@@ -401,7 +400,6 @@ def update_contacts():
     conn = connection()
     cur = conn.cursor()
     for key in validator_names.keys():
-        print(key)
         validator = "val_" + str(key)
         command = "UPDATE validator_info " \
                   "SET contacts = '" + validator_names[key][1] + "' " \
