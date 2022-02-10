@@ -48,7 +48,8 @@ async def check_latest_checkpoint():
 
 async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int):
     await bot.wait_until_ready()
-    channel = bot.get_channel(id=secrets.MISSED_CHECKPOINTS_CHANNEL)
+    checkpoint_channel = bot.get_channel(id=secrets.MISSED_CHECKPOINTS_CHANNEL)
+    vault_checkpoint_channel = bot.get_channel(id=secrets.VAULT_CHECKPOINT_CHANNEL)
     notify_missed_cp = [2, 5, 9, 19, 34, 49, 99, 199]
     for i in range(len(notify_missed_cp)):
         notify_missed_cp[i] += (current_checkpoint - last_saved_checkpoint)
@@ -62,24 +63,24 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
 
             # notify me
             if i == 37:
-                if current_checkpoint != validator_checkpoint or current_checkpoint % 10 == 0:
+                if current_checkpoint != validator_checkpoint or current_checkpoint % 3 == 0:
                     send_email(current_checkpoint, validator_checkpoint)
 
             # notify if a validator missed a checkpoint
             if (current_checkpoint - validator_checkpoint) in notify_missed_cp:
-                await channel.send(get_val_contacts_from_id(str(i)) + ", please check **" + get_val_name_from_id(str(i)) + "**, " \
+                await checkpoint_channel.send(get_val_contacts_from_id(str(i)) + ", please check **" + get_val_name_from_id(str(i)) + "**, " \
                                       "it has missed the last " + str((current_checkpoint - validator_checkpoint)) + " checkpoints.")
 
             # check if the validator is back in sync
             elif (current_checkpoint - validator_checkpoint) == 0 and get_last_validator_checkpoint(str(i)) - current_checkpoint >= 4:
-                await channel.send(get_val_contacts_from_id(str(i)) + ", " + get_val_name_from_id(str(i)) + " is back in sync.")
+                await checkpoint_channel.send(get_val_contacts_from_id(str(i)) + ", " + get_val_name_from_id(str(i)) + " is back in sync.")
 
             # save validator's latest checkpoint
             update_validator_checkpoint(str(i), str(validator_checkpoint))
 
         except Exception as e:
             log(e)
-    await channel.send("Completed Checkpoint: " + str(current_checkpoint))
+    await vault_checkpoint_channel.send("Completed Checkpoint: " + str(current_checkpoint))
     log("done")
 
 
