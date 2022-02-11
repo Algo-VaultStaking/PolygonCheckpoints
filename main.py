@@ -39,7 +39,7 @@ async def check_latest_checkpoint():
 
     #if there is a new checkpoint we haven't evaluated yet
     if current_checkpoint > saved_checkpoint:
-        raw_audit_log("New Checkpoint: ")
+        raw_audit_log("New Checkpoint: " + str(current_checkpoint))
         await get_new_checkpoint(current_checkpoint, saved_checkpoint)
         return True
     else:
@@ -78,7 +78,7 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
             update_validator_checkpoint(str(i), str(validator_checkpoint))
 
         except Exception as e:
-            raw_audit_log(e)
+            raw_audit_log(str(e))
     await vault_checkpoint_channel.send("Completed Checkpoint: " + str(current_checkpoint))
     raw_audit_log("done")
 
