@@ -1,13 +1,16 @@
 import json
 import urllib.request
-from logger import raw_audit_log
+from logger import raw_audit_log, log
 
+import discord
 from discord.ext import commands, tasks
 
 import secrets
 from checkpoint_db import get_latest_saved_checkpoint, get_last_validator_checkpoint, \
-    update_validator_checkpoint, get_val_name_from_id, get_val_contacts_from_id, set_new_checkpoint, send_email
-
+    update_validator_checkpoint, set_new_checkpoint, send_email
+from validator_db import get_val_name_from_id, get_val_contacts_from_id, get_val_uptime_from_id, \
+    get_val_missed_latest_checkpoint_from_id, get_val_commission_percent_from_id, get_val_self_stake_from_id, \
+    get_val_delegated_stake_from_id
 
 token = secrets.DISCORD_TOKEN
 bot = commands.Bot(command_prefix='$')
@@ -18,13 +21,59 @@ async def on_ready():
     raw_audit_log(f'Logged in as {bot.user} (ID: {bot.user.id})')
     raw_audit_log('-----------------')
 
-@bot.command(name='status', help='usage: faucet-send  [address] [tokens')
+
+@bot.command(name='status', help='$status [validator id]')
+async def status(ctx, val_id: int):
+
+    message = get_val_name_from_id(str(val_id)) + " has missed " + get_val_uptime_from_id(str(val_id)) + " out of 200 checkpoints. \n" \
+              "Validator has " + ("not" if get_val_missed_latest_checkpoint_from_id(str(val_id)) > 0 else "") + \
+              " signed the latest checkpoint"
+    await ctx.send(message)
+
+
+@bot.command(name='missed', help='$missed')
 async def status(ctx):
-    await ctx.send("still alive")
+    # input: $missed
+    # output: iterate over all validators and respond with a message similar to:
+    # "[validator name 1], [validator name 2], ... has not signed the latest checkpoint.
+    message = ""
+    await ctx.send(message)
+    return
+
+
+@bot.command(name='details', help='$details [validator id]')
+async def status(ctx, val_id: str):
+    embed = discord.Embed(title= get_val_name_from_id(str(val_id)),
+                          color=discord.Color.blue())
+    embed.add_field(name="Contacts", value=get_val_contacts_from_id(str(val_id)), inline=False)
+    embed.add_field(name="Commission", value=get_val_commission_percent_from_id(str(val_id)), inline=False)
+    embed.add_field(name="Contacts", value=get_val_self_stake_from_id(str(val_id)), inline=False)
+    embed.add_field(name="Contacts", value=get_val_delegated_stake_from_id(str(val_id)), inline=False)
+    embed.add_field(name="Uptime", value=(get_val_uptime_from_id(str(val_id)) + "%"), inline=False)
+
+    await ctx.send(embed=embed)
+
+
+@bot.command(name='contacts', help='$contacts [validator id]')
+async def status(ctx, val_id: str):
+    message = get_val_name_from_id(str(val_id)) + " has the following contacts: " + get_val_contacts_from_id(str(val_id))
+    await ctx.send(message)
+
+
+@bot.command(name='contacts-add', help='$contacts-add [validator id] @user1 (@user2 @user3...)')
+async def status(ctx, validator: int, users: str):
+    return
+
+
+@bot.command(name='contacts-remove', help='$contacts-remove [validator id] @user1 (@user2 @user3...)')
+async def status(ctx, validator: int, users: str):
+    return
+
+## no updates needed below this line ##
 
 @tasks.loop(minutes = 1)
 async def check_latest_checkpoint():
-    raw_audit_log('Checking for new checkpoint')
+    log('Checking for new checkpoint')
 
     trusted_validators = [1, 2, 3, 4, 5, 12, 13, 15, 32, 37, 97, 123]
     estimated_checkpoints = []
@@ -71,7 +120,7 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
                                       "it has missed the last " + str((current_checkpoint - validator_checkpoint)) + " checkpoints.")
 
             # check if the validator is back in sync
-            elif (current_checkpoint - validator_checkpoint) == 0 and get_last_validator_checkpoint(str(i)) - current_checkpoint >= 4:
+            elif (current_checkpoint - validator_checkpoint) == 0 and last_saved_checkpoint - get_last_validator_checkpoint(str(i)) >= 4:
                 await checkpoint_channel.send(get_val_contacts_from_id(str(i)) + ", " + get_val_name_from_id(str(i)) + " is back in sync.")
 
             # save validator's latest checkpoint
