@@ -162,7 +162,7 @@ def get_val_uptime_from_id(val_id: str):
     cur.execute(command)
     result = cur.fetchall()[0][0]
     conn.close()
-    return result
+    return float(result)
 
 
 def get_val_missed_latest_checkpoint_from_id(val_id: str):

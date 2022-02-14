@@ -25,9 +25,10 @@ async def on_ready():
 @bot.command(name='status', help='$status [validator id]')
 async def status(ctx, val_id: int):
 
-    message = get_val_name_from_id(str(val_id)) + " has missed " + get_val_uptime_from_id(str(val_id)) + " out of 200 checkpoints. \n" \
-              "Validator has " + ("not" if get_val_missed_latest_checkpoint_from_id(str(val_id)) > 0 else "") + \
-              " signed the latest checkpoint"
+    no_of_checkpoints = (100-get_val_uptime_from_id(str(val_id)))*2
+    message = get_val_name_from_id(str(val_id)) + " has missed " + str(no_of_checkpoints) + " out of the last 200 checkpoints. \n" \
+              "Validator has " + ("not " if get_val_missed_latest_checkpoint_from_id(str(val_id)) > 0 else "") + \
+              "signed the latest checkpoint."
     await ctx.send(message)
 
 
@@ -46,10 +47,10 @@ async def status(ctx, val_id: str):
     embed = discord.Embed(title= get_val_name_from_id(str(val_id)),
                           color=discord.Color.blue())
     embed.add_field(name="Contacts", value=get_val_contacts_from_id(str(val_id)), inline=False)
-    embed.add_field(name="Commission", value=get_val_commission_percent_from_id(str(val_id)), inline=False)
-    embed.add_field(name="Contacts", value=get_val_self_stake_from_id(str(val_id)), inline=False)
-    embed.add_field(name="Contacts", value=get_val_delegated_stake_from_id(str(val_id)), inline=False)
-    embed.add_field(name="Uptime", value=(get_val_uptime_from_id(str(val_id)) + "%"), inline=False)
+    embed.add_field(name="Commission", value=(str(get_val_commission_percent_from_id(str(val_id))) + "%"), inline=False)
+    embed.add_field(name="Self Stake", value="{:,}".format(get_val_self_stake_from_id(str(val_id))), inline=False)
+    embed.add_field(name="Delegated Stake", value="{:,}".format(get_val_delegated_stake_from_id(str(val_id))), inline=False)
+    embed.add_field(name="Uptime", value=(str(get_val_uptime_from_id(str(val_id))) + "%"), inline=False)
 
     await ctx.send(embed=embed)
 
@@ -69,7 +70,6 @@ async def status(ctx, validator: int, users: str):
 async def status(ctx, validator: int, users: str):
     return
 
-## no updates needed below this line ##
 
 @tasks.loop(minutes = 1)
 async def check_latest_checkpoint():
