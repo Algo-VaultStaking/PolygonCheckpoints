@@ -61,9 +61,9 @@ def update_validator_data(val_id: str):
         message += "**Commission**: `" + get_val_name_from_id(val_id) + "` changed commission from `" + \
                    str(get_val_commission_percent_from_id(val_id)) + "` to `" + str(commission) + "`.\n"
 
-    if selfStake != get_val_self_stake_from_id(val_id):
-        message += "**Self Stake**: `" + get_val_name_from_id(val_id) + "` changed self stake from `" + \
-                   str(get_val_self_stake_from_id(val_id)/1e18) + "` to `" + str(selfStake/1e18) + "`.\n"
+#    if selfStake != get_val_self_stake_from_id(val_id):
+#        message += "**Self Stake**: `" + get_val_name_from_id(val_id) + "` changed self stake from `" + \
+#                   str(get_val_self_stake_from_id(val_id)/1e18) + "` to `" + str(selfStake/1e18) + "`.\n"
 
 #    if delegatedStake != get_val_delegated_stake_from_id(val_id):
 #        message += "**Delegated Stake**: `" + get_val_name_from_id(val_id) + "` changed delegated stake from `" + \
@@ -82,8 +82,6 @@ def update_validator_data(val_id: str):
             "', signer = '" + str(result["signer"]) + \
             "', commissionPercent = '" + str(result["commissionPercent"]) + \
             "', signerPublicKey = '" + str(result["signerPublicKey"]) + \
-            "', selfStake = '" + str(result["selfStake"]) + \
-            "', delegatedStake = '" + str(result["delegatedStake"]) + \
             "', claimedReward = '" + str(result["claimedReward"]) + \
             "', activationEpoch = '" + str(result["activationEpoch"]) + \
             "', deactivationEpoch = '" + str(result["deactivationEpoch"]) + \
@@ -94,7 +92,9 @@ def update_validator_data(val_id: str):
             "', delegationEnabled = '" + str(result["delegationEnabled"]) + \
             "', missedLatestCheckpointcount = '" + str(result["missedLatestCheckpointcount"]) + \
             "' WHERE val_id = 'val_" + val_id + "';"
-    print(command)
+
+#    "', selfStake = '" + str(result["selfStake"]) + \
+#    "', delegatedStake = '" + str(result["delegatedStake"]) + \
     cur.execute(command)
     conn.commit()
     conn.close()

@@ -156,7 +156,7 @@ async def update_validator_details():
         print(i)
         message = update_validator_data(str(i))
         raw_audit_log(message)
-        checkpoint_channel.send(message)
+        await checkpoint_channel.send(message)
     return
 
 check_latest_checkpoint.start()
