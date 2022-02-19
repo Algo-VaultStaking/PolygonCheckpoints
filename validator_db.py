@@ -1,7 +1,5 @@
 import json
-import smtplib
 import urllib.request
-from datetime import datetime
 import mariadb
 
 import secrets
@@ -26,28 +24,67 @@ def connection():
         raw_audit_log(f"Error connecting to MariaDB Platform: {e}")
         exit()
 
-# not used
-def get_validator_data(val_id: str):
+
+def update_validator_data(val_id: str):
     conn = connection()
     cur = conn.cursor()
+    val_id = str(val_id)
+    message = ""
 
     contents = urllib.request.urlopen(
             "https://sentinel.matic.network/api/v2/validators/" + str(val_id)).read()
     result = json.loads(contents)["result"]
-    print(result["name"])
-    command = "INSERT INTO validator_info VALUES(val_id = '" + ("val_"+(str(val_id))) + \
-            "', name = '" + str(result["name"]) + \
+
+    name = str(result["name"]).encode("ascii", "ignore").decode() if str(result["name"]) != "None" else ("Anonymous " + str(val_id))
+    owner = str(result["owner"])
+    signer = str(result["signer"])
+    commission = str(result["commissionPercent"])
+    selfStake = float(result["selfStake"])
+    # delegatedStake = float(result["delegatedStake"])
+    # str(result["isInAuction"])
+    # str(result["auctionAmount"])
+    activation = str(result["activationEpoch"])
+    deactivation = str(result["deactivationEpoch"])
+
+    if name != get_val_name_from_id(val_id):
+        message += "**Name**: `" + get_val_name_from_id(val_id) + "` is now `" + name + "`.\n"
+
+    if owner != get_val_owner_from_id(val_id):
+        message += "**Owner Address**: `" + get_val_name_from_id(val_id) + "` changed owner address from `" + \
+                   get_val_owner_from_id(val_id) + "` to `" + owner + "`.\n"
+
+    if signer != get_val_signer_from_id(val_id):
+        message += "**Signer Address**: `" + get_val_name_from_id(val_id) + "` changed signer address from `" + \
+                   get_val_signer_from_id(val_id) + "` to `" + owner + "`.\n"
+
+    if commission != get_val_commission_percent_from_id(val_id):
+        message += "**Commission**: `" + get_val_name_from_id(val_id) + "` changed commission from `" + \
+                   str(get_val_commission_percent_from_id(val_id)) + "` to `" + str(commission) + "`.\n"
+
+    if selfStake != get_val_self_stake_from_id(val_id):
+        message += "**Self Stake**: `" + get_val_name_from_id(val_id) + "` changed self stake from `" + \
+                   str(get_val_self_stake_from_id(val_id)/1e18) + "` to `" + str(selfStake/1e18) + "`.\n"
+
+#    if delegatedStake != get_val_delegated_stake_from_id(val_id):
+#        message += "**Delegated Stake**: `" + get_val_name_from_id(val_id) + "` changed delegated stake from `" + \
+#                  str(get_val_delegated_stake_from_id(val_id)/1e18) + "` to `" + str(delegatedStake/1e18) + "`.\n"
+
+    if activation != get_val_activation_from_id(val_id):
+        message += "**Activation**: `" + str(get_val_name_from_id(val_id)) + "` is now active from checkpoint '\`" + str(activation) + "`.\n"
+
+    if deactivation != get_val_deactivation_from_id(val_id):
+        message += "**Activation**: `" + str(get_val_name_from_id(val_id)) + "` has unbonded effective checkpoint `" + str(deactivation) + "`.\n"
+
+    command = "UPDATE validator_info " \
+              "SET name = '" + str(result["name"]) + \
             "', description = '" + str(max([result["description"], "null"])) + \
-            "', contacts = '" + str("null") + \
             "', owner = '" + str(result["owner"]) + \
             "', signer = '" + str(result["signer"]) + \
             "', commissionPercent = '" + str(result["commissionPercent"]) + \
             "', signerPublicKey = '" + str(result["signerPublicKey"]) + \
-            "', selfStake = '" + str(result["selfStake"]/1e18) + \
-            "', delegatedStake = '" + str(result["delegatedStake"]/1e18) + \
-            "', isInAuction = '" + str(result["isInAuction"]) + \
-            "', auctionAmount = '" + str(result["auctionAmount"]) + \
-            "', claimedReward = '" + str(result["claimedReward"]/1e18) + \
+            "', selfStake = '" + str(result["selfStake"]) + \
+            "', delegatedStake = '" + str(result["delegatedStake"]) + \
+            "', claimedReward = '" + str(result["claimedReward"]) + \
             "', activationEpoch = '" + str(result["activationEpoch"]) + \
             "', deactivationEpoch = '" + str(result["deactivationEpoch"]) + \
             "', jailEndEpoch = '" + str(result["jailEndEpoch"]) + \
@@ -55,48 +92,14 @@ def get_validator_data(val_id: str):
             "', contractAddress = '" + str(result["contractAddress"]) + \
             "', uptimePercent = '" + str(result["uptimePercent"]) + \
             "', delegationEnabled = '" + str(result["delegationEnabled"]) + \
-            "', missedLatestCheckpointcount = '" + str(result["missedLatestCheckpointcount"]) + "');"
+            "', missedLatestCheckpointcount = '" + str(result["missedLatestCheckpointcount"]) + \
+            "' WHERE val_id = 'val_" + val_id + "';"
     print(command)
     cur.execute(command)
     conn.commit()
     conn.close()
 
-def update_validator_data():
-    conn = connection()
-    cur = conn.cursor()
-
-    for i in range(1, 140):
-        contents = urllib.request.urlopen(
-                "https://sentinel.matic.network/api/v2/validators/" + str(i)).read()
-        result = json.loads(contents)["result"]
-        name = str(result["name"]).encode("ascii", "ignore").decode() if str(result["name"]) != "None" else ("Anonymous " + str(i))
-        print(name)
-
-        command = "INSERT INTO validator_info VALUES('val_"+str(i) + \
-                "', '" + str(name) + \
-                "', '" + str("null") + \
-                "', '" + str("null" if result["description"] is None else result["description"]) + \
-                "', '" + str(result["owner"]) + \
-                "', '" + str(result["signer"]) + \
-                "', '" + str(result["commissionPercent"]) + \
-                "', '" + str(result["signerPublicKey"]) + \
-                "', '" + str(float(result["selfStake"])/1e18) + \
-                "', '" + str(float(result["delegatedStake"])/1e18) + \
-                "', '" + str(result["isInAuction"]) + \
-                "', '" + str(result["auctionAmount"]) + \
-                "', '" + str(float(result["claimedReward"])/1e18) + \
-                "', '" + str(result["activationEpoch"]) + \
-                "', '" + str(result["deactivationEpoch"]) + \
-                "', '" + str(result["jailEndEpoch"]) + \
-                "', '" + str(result["status"]) + \
-                "', '" + str(result["contractAddress"]) + \
-                "', '" + str(result["uptimePercent"]) + \
-                "', '" + str(result["delegationEnabled"]) + \
-                "', '" + str(result["missedLatestCheckpointcount"]) + "');"
-        #print(command)
-        cur.execute(command)
-        conn.commit()
-    conn.close()
+    return message[:-2]
 
 
 def get_val_name_from_id(val_id: str):
@@ -121,11 +124,46 @@ def get_val_contacts_from_id(val_id: str):
     return result
 
 
+def set_val_contacts_from_id(val_id: str, contacts: str):
+    conn = connection()
+    cur = conn.cursor()
+    contacts = get_val_contacts_from_id(val_id) + ", " + contacts
+    validator = "val_" + val_id
+    command = "UPDATE validator_info " \
+              "SET contacts = '" + str(contacts) + \
+              "' WHERE val_id = '" + val_id + "';"
+    cur.execute(command)
+    conn.commit()
+    conn.close()
+
+
 def get_val_commission_percent_from_id(val_id: str):
     conn = connection()
     cur = conn.cursor()
     validator = "val_" + val_id
     command = "SELECT commissionPercent FROM validator_info WHERE val_id = '" + validator + "';"
+    cur.execute(command)
+    result = cur.fetchall()[0][0]
+    conn.close()
+    return result
+
+
+def get_val_owner_from_id(val_id):
+    conn = connection()
+    cur = conn.cursor()
+    validator = "val_" + val_id
+    command = "SELECT owner FROM validator_info WHERE val_id = '" + validator + "';"
+    cur.execute(command)
+    result = cur.fetchall()[0][0]
+    conn.close()
+    return result
+
+
+def get_val_signer_from_id(val_id):
+    conn = connection()
+    cur = conn.cursor()
+    validator = "val_" + val_id
+    command = "SELECT signer FROM validator_info WHERE val_id = '" + validator + "';"
     cur.execute(command)
     result = cur.fetchall()[0][0]
     conn.close()
@@ -170,6 +208,28 @@ def get_val_missed_latest_checkpoint_from_id(val_id: str):
     cur = conn.cursor()
     validator = "val_" + val_id
     command = "SELECT missedLatestCheckpointcount FROM validator_info WHERE val_id = '" + validator + "';"
+    cur.execute(command)
+    result = cur.fetchall()[0][0]
+    conn.close()
+    return result
+
+
+def get_val_activation_from_id(val_id):
+    conn = connection()
+    cur = conn.cursor()
+    validator = "val_" + val_id
+    command = "SELECT activationEpoch FROM validator_info WHERE val_id = '" + validator + "';"
+    cur.execute(command)
+    result = cur.fetchall()[0][0]
+    conn.close()
+    return result
+
+
+def get_val_deactivation_from_id(val_id):
+    conn = connection()
+    cur = conn.cursor()
+    validator = "val_" + val_id
+    command = "SELECT deactivationEpoch FROM validator_info WHERE val_id = '" + validator + "';"
     cur.execute(command)
     result = cur.fetchall()[0][0]
     conn.close()
