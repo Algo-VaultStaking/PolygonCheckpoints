@@ -63,7 +63,7 @@ def update_validator_data(val_id: str):
 
     if selfStake != get_val_self_stake_from_id(val_id):
         message += "**Self Stake**: `" + get_val_name_from_id(val_id) + "` changed self stake from `" + \
-                   str(get_val_self_stake_from_id(val_id)) + "` to `" + str(selfStake) + "`.\n"
+                   str(float(get_val_self_stake_from_id(val_id))/1e18) + "` to `" + str(float(selfStake)/1e18) + "`.\n"
 
 #    if delegatedStake != get_val_delegated_stake_from_id(val_id):
 #        message += "**Delegated Stake**: `" + get_val_name_from_id(val_id) + "` changed delegated stake from `" + \
@@ -235,3 +235,4 @@ def get_val_deactivation_from_id(val_id):
     conn.close()
     return result
 
+print(update_validator_data(37))
