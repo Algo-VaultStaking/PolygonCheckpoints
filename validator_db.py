@@ -76,9 +76,9 @@ def update_validator_data(val_id: str):
         message += "**Activation**: `" + str(get_val_name_from_id(val_id)) + "` has unbonded effective checkpoint `" + str(deactivation) + "`.\n"
 
     command = "UPDATE validator_info " \
-              "SET name = '" + str(result["name"]) + \
-            "', owner = '" + str(result["owner"]) + \
-            "', signer = '" + str(result["signer"]) + \
+              "SET name = '" + name + \
+            "', owner = '" + owner + \
+            "', signer = '" + signer + \
             "', commissionPercent = '" + str(result["commissionPercent"]) + \
             "', signerPublicKey = '" + str(result["signerPublicKey"]) + \
             "', selfStake = '" + str(result["selfStake"]) + \
