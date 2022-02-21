@@ -153,10 +153,12 @@ async def update_validator_details():
     await bot.wait_until_ready()
     checkpoint_channel = bot.get_channel(id=secrets.MISSED_CHECKPOINTS_CHANNEL)
     for i in range(1, secrets.total_validators):
-        print(i)
-        message = update_validator_data(str(i))
-        raw_audit_log(message)
-        await checkpoint_channel.send(message)
+        try:
+            message = update_validator_data(str(i))
+            raw_audit_log(message)
+            await checkpoint_channel.send(message)
+        except:
+            pass
     return
 
 check_latest_checkpoint.start()
