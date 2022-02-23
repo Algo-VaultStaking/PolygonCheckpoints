@@ -24,6 +24,7 @@ def connection():
 
     except mariadb.Error as e:
         raw_audit_log(f"Error connecting to MariaDB Platform: {e}")
+        print(f"Error connecting to MariaDB Platform: {e}")
         exit()
 
 

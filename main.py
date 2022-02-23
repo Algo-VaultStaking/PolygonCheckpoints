@@ -20,9 +20,11 @@ bot = commands.Bot(command_prefix='$')
 async def on_ready():
     raw_audit_log(f'Logged in as {bot.user} (ID: {bot.user.id})')
     raw_audit_log('-----------------')
+    print("ready")
 
 
 @bot.command(name='status', help='$status [validator id]')
+@commands.has_any_role("Mod", "team", "admin")
 async def status(ctx, val_id: int):
 
     no_of_checkpoints = (100-get_val_uptime_from_id(str(val_id)))*2
@@ -33,6 +35,7 @@ async def status(ctx, val_id: int):
 
 
 @bot.command(name='missed', help='$missed')
+@commands.has_any_role("None")
 async def missed(ctx):
     # input: $missed
     # output: iterate over all validators and respond with a message similar to:
@@ -43,6 +46,7 @@ async def missed(ctx):
 
 
 @bot.command(name='details', help='$details [validator id]')
+@commands.has_any_role("Mod", "team", "admin")
 async def details(ctx, val_id: str):
     embed = discord.Embed(title= get_val_name_from_id(str(val_id)),
                           color=discord.Color.blue())
@@ -56,12 +60,14 @@ async def details(ctx, val_id: str):
 
 
 @bot.command(name='contacts', help='$contacts [validator id]')
+@commands.has_any_role("Mod", "team", "admin")
 async def contacts(ctx, val_id: str):
     message = get_val_name_from_id(str(val_id)) + " has the following contacts: " + get_val_contacts_from_id(str(val_id))
     await ctx.send(message)
 
 
 @bot.command(name='contacts-add', help='$contacts-add [validator id] @user1 (@user2 @user3...)')
+@commands.has_any_role("None")
 async def contacts_add(ctx, val_id: int, user_one, user_two="", user_three="", user_four="", user_five=""):
     contact = user_one
     if user_two != "":
@@ -81,7 +87,8 @@ async def contacts_add(ctx, val_id: int, user_one, user_two="", user_three="", u
 
 
 @bot.command(name='contacts-remove', help='$contacts-remove [validator id] @user1 (@user2 @user3...)')
-async def status(ctx, validator: int, users: str):
+@commands.has_any_role("None")
+async def contacts_remove(ctx, validator: int, users: str):
     return
 
 
@@ -103,18 +110,18 @@ async def check_latest_checkpoint():
     #if there is a new checkpoint we haven't evaluated yet
     if current_checkpoint > saved_checkpoint:
         raw_audit_log("New Checkpoint: " + str(current_checkpoint))
-        print(raw_audit_log("New Checkpoint: " + str(current_checkpoint)))
+        print("New Checkpoint: " + str(current_checkpoint))
         await get_new_checkpoint(current_checkpoint, saved_checkpoint)
     else:
         print("No New Checkpoint.")
 
-    await update_validator_details()
+#    await update_validator_details()
 
 async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int):
     await bot.wait_until_ready()
     checkpoint_channel = bot.get_channel(id=secrets.MISSED_CHECKPOINTS_CHANNEL)
     vault_checkpoint_channel = bot.get_channel(id=secrets.VAULT_CHECKPOINT_CHANNEL)
-    notify_missed_cp = [2, 5, 9, 19, 34, 49, 99, 199]
+    notify_missed_cp = [0, 1, 2, 5, 9, 19, 34, 49, 99, 199]
     for i in range(len(notify_missed_cp)):
         notify_missed_cp[i] += (current_checkpoint - last_saved_checkpoint)
 
@@ -136,7 +143,7 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
                                       "it has missed the last " + str((current_checkpoint - validator_checkpoint)) + " checkpoints.")
 
             # check if the validator is back in sync
-            elif (current_checkpoint - validator_checkpoint) == 0 and last_saved_checkpoint - get_last_validator_checkpoint(str(i)) >= 4:
+            elif (current_checkpoint - validator_checkpoint) == 0 and last_saved_checkpoint - get_last_validator_checkpoint(str(i)) >= 1:
                 await checkpoint_channel.send(get_val_contacts_from_id(str(i)) + ", " + get_val_name_from_id(str(i)) + " is back in sync.")
 
             # save validator's latest checkpoint
@@ -144,13 +151,14 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
 
         except Exception as e:
             raw_audit_log(str(e))
-    if current_checkpoint % 5 == 0:
+    if current_checkpoint % 1 == 0:
         await vault_checkpoint_channel.send("Completed Checkpoint: " + str(current_checkpoint))
     raw_audit_log("done")
 
 
 async def update_validator_details():
     await bot.wait_until_ready()
+    print("updating validators")
     checkpoint_channel = bot.get_channel(id=secrets.MISSED_CHECKPOINTS_CHANNEL)
     for i in range(1, secrets.total_validators):
         try:

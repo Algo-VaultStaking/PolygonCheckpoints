@@ -234,5 +234,3 @@ def get_val_deactivation_from_id(val_id):
     result = cur.fetchall()[0][0]
     conn.close()
     return result
-
-print(update_validator_data(37))
