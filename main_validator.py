@@ -27,7 +27,7 @@ async def on_ready():
 async def update_validator_details():
     await bot.wait_until_ready()
     print("updating validators")
-    checkpoint_channel = bot.get_channel(id=secrets.MISSED_CHECKPOINTS_CHANNEL)
+    checkpoint_channel = bot.get_channel(id=secrets.VAULT_CHECKPOINT_CHANNEL)
     for i in range(1, secrets.total_validators):
         try:
             message = update_validator_data(str(i))

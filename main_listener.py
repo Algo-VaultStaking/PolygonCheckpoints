@@ -1,5 +1,8 @@
 import json
 import urllib.request
+
+from discord.ext.commands import MissingRequiredArgument, MissingRole, BadArgument, CommandInvokeError
+
 from logger import raw_audit_log, log
 
 import discord
@@ -10,7 +13,7 @@ from checkpoint_db import get_latest_saved_checkpoint, get_last_validator_checkp
     update_validator_checkpoint, set_new_checkpoint, send_email
 from validator_db import get_val_name_from_id, get_val_contacts_from_id, get_val_uptime_from_id, \
     get_val_missed_latest_checkpoint_from_id, get_val_commission_percent_from_id, get_val_self_stake_from_id, \
-    get_val_delegated_stake_from_id, set_val_contacts_from_id, update_validator_data
+    get_val_delegated_stake_from_id, set_val_contacts_from_id, remove_val_contacts_from_id
 
 token = secrets.DISCORD_TOKEN
 bot = commands.Bot(command_prefix='$')
@@ -24,7 +27,7 @@ async def on_ready():
 
 
 @bot.command(name='status', help='$status [validator id]')
-@commands.has_any_role("Mod", "team", "admin")
+@commands.has_any_role(*secrets.LISTENER_ROLES)
 async def status(ctx, val_id: int):
 
     no_of_checkpoints = (100-get_val_uptime_from_id(str(val_id)))*2
@@ -46,28 +49,28 @@ async def missed(ctx):
 
 
 @bot.command(name='details', help='$details [validator id]')
-@commands.has_any_role("Mod", "team", "admin")
+@commands.has_any_role(*secrets.LISTENER_ROLES)
 async def details(ctx, val_id: str):
     embed = discord.Embed(title= get_val_name_from_id(str(val_id)),
                           color=discord.Color.blue())
     embed.add_field(name="Contacts", value=get_val_contacts_from_id(str(val_id)), inline=False)
     embed.add_field(name="Commission", value=(str(get_val_commission_percent_from_id(str(val_id))) + "%"), inline=False)
-    embed.add_field(name="Self Stake", value="{:,}".format(get_val_self_stake_from_id(str(val_id))), inline=False)
-    embed.add_field(name="Delegated Stake", value="{:,}".format(get_val_delegated_stake_from_id(str(val_id))), inline=False)
+    embed.add_field(name="Self Stake", value="{:,.2f}".format(float(get_val_self_stake_from_id(str(val_id)))/1e18), inline=False)
+    embed.add_field(name="Delegated Stake", value="{:,.2f}".format(float(get_val_delegated_stake_from_id(str(val_id)))/1e18), inline=False)
     embed.add_field(name="Uptime", value=(str(get_val_uptime_from_id(str(val_id))) + "%"), inline=False)
 
     await ctx.send(embed=embed)
 
 
 @bot.command(name='contacts', help='$contacts [validator id]')
-@commands.has_any_role("Mod", "team", "admin")
+@commands.has_any_role(*secrets.LISTENER_ROLES)
 async def contacts(ctx, val_id: str):
     message = get_val_name_from_id(str(val_id)) + " has the following contacts: " + get_val_contacts_from_id(str(val_id))
     await ctx.send(message)
 
 
 @bot.command(name='contacts-add', help='$contacts-add [validator id] @user1 (@user2 @user3...)')
-@commands.has_any_role("None")
+@commands.has_any_role(*secrets.LISTENER_ROLES)
 async def contacts_add(ctx, val_id: int, user_one, user_two="", user_three="", user_four="", user_five=""):
     contact = user_one
     if user_two != "":
@@ -87,9 +90,34 @@ async def contacts_add(ctx, val_id: int, user_one, user_two="", user_three="", u
 
 
 @bot.command(name='contacts-remove', help='$contacts-remove [validator id] @user1 (@user2 @user3...)')
-@commands.has_any_role("None")
-async def contacts_remove(ctx, validator: int, users: str):
-    return
+@commands.has_any_role(*secrets.LISTENER_ROLES)
+async def contacts_remove(ctx, val_id: int, *users):
+    for user in users:
+        remove_val_contacts_from_id(str(val_id), user)
+        message = get_val_name_from_id(str(val_id)) + " now has the following contacts: " + get_val_contacts_from_id(
+            str(val_id))
+        await ctx.send(message)
+        return
 
+
+
+@contacts_add.error
+@contacts_remove.error
+async def mainnet_faucet_error(ctx, error):
+    if isinstance(error, CommandInvokeError):
+        await ctx.send("There was error that <@712863455467667526> needs to fix. Please try again later.")
+        raise error
+    elif isinstance(error, BadArgument):
+        await ctx.send("usage: `faucet-send  [address]`. \n"
+                       "Please enter a valid address.")
+        raise error
+    elif isinstance(error, MissingRequiredArgument):
+        await ctx.send("usage: `faucet-send  [address]`")
+        raise error
+    elif isinstance(error, MissingRole):
+        await ctx.send("Role '" + secrets.MEMBER_DISCORD_ROLES + "' is required to run this command.")
+        raise error
+    else:
+        raise error
 
 bot.run(token)

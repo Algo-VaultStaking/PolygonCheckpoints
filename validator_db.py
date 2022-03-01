@@ -131,10 +131,27 @@ def set_val_contacts_from_id(val_id: str, contacts: str):
     validator = "val_" + val_id
     command = "UPDATE validator_info " \
               "SET contacts = '" + str(contacts) + \
-              "' WHERE val_id = '" + val_id + "';"
+              "' WHERE val_id = '" + validator + "';"
     cur.execute(command)
     conn.commit()
     conn.close()
+
+
+def remove_val_contacts_from_id(val_id: str, user: str):
+    conn = connection()
+    cur = conn.cursor()
+    contacts = str(get_val_contacts_from_id(val_id)).split(", ")
+    if user in contacts:
+        contacts.remove(user)
+
+    validator = "val_" + val_id
+    command = "UPDATE validator_info " \
+              "SET contacts = '" + str(", ".join(contacts)) + \
+              "' WHERE val_id = '" + validator + "';"
+    cur.execute(command)
+    conn.commit()
+    conn.close()
+    return None
 
 
 def get_val_commission_percent_from_id(val_id: str):
@@ -234,3 +251,5 @@ def get_val_deactivation_from_id(val_id):
     result = cur.fetchall()[0][0]
     conn.close()
     return result
+
+
