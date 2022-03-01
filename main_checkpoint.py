@@ -135,7 +135,7 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
             # notify me
             if i == 37:
                 if current_checkpoint != validator_checkpoint:
-                    await vault_checkpoint_channel.send("invalid checkpoint: " + str(current_checkpoint))
+                    await vault_checkpoint_channel.send("<@712863455467667526>, invalid checkpoint: " + str(current_checkpoint))
 
             # notify if a validator missed a checkpoint
             if (current_checkpoint - validator_checkpoint) in notify_missed_cp:

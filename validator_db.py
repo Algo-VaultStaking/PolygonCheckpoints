@@ -40,7 +40,7 @@ def update_validator_data(val_id: str):
     signer = str(result["signer"])
     commission = float(result["commissionPercent"])
     selfStake = int(result["selfStake"])
-    # delegatedStake = int(result["delegatedStake"])
+    delegatedStake = int(result["delegatedStake"])
     # str(result["isInAuction"])
     # str(result["auctionAmount"])
     activation = int(result["activationEpoch"])
@@ -63,11 +63,11 @@ def update_validator_data(val_id: str):
 
     if selfStake != get_val_self_stake_from_id(val_id):
         message += "**Self Stake**: `" + get_val_name_from_id(val_id) + "` changed self stake from `" + \
-                   str("{:,}".format(float(get_val_self_stake_from_id(val_id))/1e18)) + "` to `" + str("{:,}".format(float(selfStake)/1e18)) + "`.\n"
+                   str("{:,.2f}".format(float(get_val_self_stake_from_id(val_id))/1e18)) + "` to `" + str("{:,.2f}".format(float(selfStake)/1e18)) + "`.\n"
 
-#    if delegatedStake != get_val_delegated_stake_from_id(val_id):
-#        message += "**Delegated Stake**: `" + get_val_name_from_id(val_id) + "` changed delegated stake from `" + \
-#                  str(get_val_delegated_stake_from_id(val_id)/1e18) + "` to `" + str(delegatedStake/1e18) + "`.\n"
+    if abs(delegatedStake - get_val_delegated_stake_from_id(val_id)) >= 5000000000000000000000000:
+        message += "**Delegated Stake**: `" + get_val_name_from_id(val_id) + "`'s delegated stake changed from `" + \
+                  str(get_val_delegated_stake_from_id(val_id)/1e18) + "` to `" + str(delegatedStake/1e18) + "`.\n"
 
     if activation != get_val_activation_from_id(val_id):
         message += "**Activation**: `" + str(get_val_name_from_id(val_id)) + "` is now active from checkpoint '`" + str(activation) + "`.\n"
