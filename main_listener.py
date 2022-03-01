@@ -100,24 +100,126 @@ async def contacts_remove(ctx, val_id: int, *users):
         return
 
 
+#### Error methods ####
 
-@contacts_add.error
-@contacts_remove.error
-async def mainnet_faucet_error(ctx, error):
+@status.error
+async def status_error(ctx, error):
     if isinstance(error, CommandInvokeError):
         await ctx.send("There was error that <@712863455467667526> needs to fix. Please try again later.")
+        raw_audit_log(str(error))
         raise error
     elif isinstance(error, BadArgument):
-        await ctx.send("usage: `faucet-send  [address]`. \n"
-                       "Please enter a valid address.")
+        await ctx.send("usage: `$status [validator id]`. \n"
+                       "There was a bad argument.")
         raise error
     elif isinstance(error, MissingRequiredArgument):
-        await ctx.send("usage: `faucet-send  [address]`")
+        await ctx.send("Missing argument, try: `$status [validator id]`")
         raise error
     elif isinstance(error, MissingRole):
-        await ctx.send("Role '" + secrets.MEMBER_DISCORD_ROLES + "' is required to run this command.")
+        await ctx.send("Role '" + secrets.LISTENER_ROLES + "' is required to run this command.")
         raise error
     else:
+        raw_audit_log(error)
+        raise error
+
+@missed.error
+async def missed_error(ctx, error):
+    if isinstance(error, CommandInvokeError):
+        await ctx.send("There was error that <@712863455467667526> needs to fix. Please try again later.")
+        raw_audit_log(str(error))
+        raise error
+    elif isinstance(error, BadArgument):
+        await ctx.send("usage: `$missed`. \n"
+                       "There was a bad argument.")
+        raise error
+    elif isinstance(error, MissingRequiredArgument):
+        await ctx.send("Missing argument, try: `$missed`")
+        raise error
+    elif isinstance(error, MissingRole):
+        await ctx.send("Role '" + secrets.LISTENER_ROLES + "' is required to run this command.")
+        raise error
+    else:
+        raw_audit_log(error)
+        raise error
+
+@details.error
+async def details_error(ctx, error):
+    if isinstance(error, CommandInvokeError):
+        await ctx.send("There was error that <@712863455467667526> needs to fix. Please try again later.")
+        raw_audit_log(str(error))
+        raise error
+    elif isinstance(error, BadArgument):
+        await ctx.send("usage: `$details [validator id]`. \n"
+                       "There was a bad argument.")
+        raise error
+    elif isinstance(error, MissingRequiredArgument):
+        await ctx.send("Missing argument, try: `$details [validator id]`")
+        raise error
+    elif isinstance(error, MissingRole):
+        await ctx.send("Role '" + secrets.LISTENER_ROLES + "' is required to run this command.")
+        raise error
+    else:
+        raw_audit_log(error)
+        raise error
+
+@contacts.error
+async def contacts_error(ctx, error):
+    if isinstance(error, CommandInvokeError):
+        await ctx.send("There was error that <@712863455467667526> needs to fix. Please try again later.")
+        raw_audit_log(str(error))
+        raise error
+    elif isinstance(error, BadArgument):
+        await ctx.send("usage: `$contacts [validator id]`. \n"
+                       "There was a bad argument.")
+        raise error
+    elif isinstance(error, MissingRequiredArgument):
+        await ctx.send("Missing argument, try: `$contacts [validator id]`")
+        raise error
+    elif isinstance(error, MissingRole):
+        await ctx.send("Role '" + secrets.LISTENER_ROLES + "' is required to run this command.")
+        raise error
+    else:
+        raw_audit_log(error)
+        raise error
+
+@contacts_add.error
+async def contacts_add_error(ctx, error):
+    if isinstance(error, CommandInvokeError):
+        await ctx.send("There was error that <@712863455467667526> needs to fix. Please try again later.")
+        raw_audit_log(str(error))
+        raise error
+    elif isinstance(error, BadArgument):
+        await ctx.send("usage: `$contacts-add [validator id] @user1 (@user2 @user3...)`. \n"
+                       "There was a bad argument.")
+        raise error
+    elif isinstance(error, MissingRequiredArgument):
+        await ctx.send("Missing argument, try: `$contacts-add [validator id] @user1 (@user2 @user3...)`")
+        raise error
+    elif isinstance(error, MissingRole):
+        await ctx.send("Role '" + secrets.LISTENER_ROLES + "' is required to run this command.")
+        raise error
+    else:
+        raw_audit_log(error)
+        raise error
+
+@contacts_remove.error
+async def contacts_remove_error(ctx, error):
+    if isinstance(error, CommandInvokeError):
+        await ctx.send("There was error that <@712863455467667526> needs to fix. Please try again later.")
+        raw_audit_log(str(error))
+        raise error
+    elif isinstance(error, BadArgument):
+        await ctx.send("usage: `$contacts-remove [validator id] @user1 (@user2 @user3...)`. \n"
+                       "There was a bad argument.")
+        raise error
+    elif isinstance(error, MissingRequiredArgument):
+        await ctx.send("Missing argument, try: `$contacts-remove [validator id] @user1 (@user2 @user3...)`")
+        raise error
+    elif isinstance(error, MissingRole):
+        await ctx.send("Role '" + secrets.LISTENER_ROLES + "' is required to run this command.")
+        raise error
+    else:
+        raw_audit_log(error)
         raise error
 
 bot.run(token)
