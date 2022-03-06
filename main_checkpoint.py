@@ -91,6 +91,7 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
     if current_checkpoint % 1 == 0:
         await vault_checkpoint_channel.send("Completed Checkpoint: " + str(current_checkpoint))
     raw_audit_log("done")
+    db_connection.close()
 
 check_latest_checkpoint.start()
 bot.run(token)
