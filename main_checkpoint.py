@@ -9,7 +9,7 @@ from checkpoint_db import get_latest_saved_checkpoint, get_last_validator_checkp
 from validator_db import get_val_name_from_id, get_val_contacts_from_id, get_db_connection
 
 token = secrets.DISCORD_TOKEN
-bot = commands.Bot(command_prefix='$')
+bot = commands.Bot(command_prefix='cp')
 
 
 @bot.event
@@ -19,7 +19,7 @@ async def on_ready():
     print("ready")
 
 
-@bot.command(name='are-you-alive', help='$status [validator id]')
+@bot.command(name=':', help='')
 @commands.has_any_role("Mod", "team", "admin")
 async def status(ctx):
 
