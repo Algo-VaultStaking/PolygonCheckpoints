@@ -54,22 +54,27 @@ def get_block_rewards(page):
     block_list = response.json()['result']
 
     for block in block_list:
-        if int(block["blockNumber"]) not in high_blocks:
 
+        if int(block["blockNumber"]) % 100 == 0:
             print(block["blockNumber"])
-            dt_object = datetime.fromtimestamp(int(block["timeStamp"]))
-            command = "INSERT INTO block_rewards VALUES ('" + \
-                      str(block["blockNumber"]) + "', '" +\
-                      str(block["timeStamp"]) + "', '" +\
-                      str(dt_object) + "', '" + \
-                      str(block["blockReward"]) + "');"
 
+        dt_object = datetime.fromtimestamp(int(block["timeStamp"]))
+        command = "INSERT INTO block_rewards VALUES ('" + \
+                  str(block["blockNumber"]) + "', '" +\
+                  str(block["timeStamp"]) + "', '" +\
+                  str(dt_object) + "', '" + \
+                  str(block["blockReward"]) + "');"
+
+        try:
             cur.execute(command)
             conn.commit()
+        except Exception as e:
+            exit()
+
     cur.close()
     conn.close()
 
     return True
 
-for i in range(1, 10):
+for i in range(1, 9):
     get_block_rewards(i)
