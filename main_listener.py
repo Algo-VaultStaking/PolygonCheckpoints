@@ -1,4 +1,4 @@
-from discord.ext.commands import MissingRequiredArgument, MissingRole, BadArgument, CommandInvokeError
+from discord.ext.commands import MissingRequiredArgument, MissingRole, BadArgument, MissingAnyRole
 
 from logger import raw_audit_log
 
@@ -114,9 +114,8 @@ async def contacts_remove(ctx, val_id: int, *users):
 
 @status.error
 async def status_error(ctx, error):
-    if isinstance(error, CommandInvokeError):
-        await ctx.send("There was error that <@712863455467667526> needs to fix. Please try again later.")
-        raw_audit_log(str(error))
+    if isinstance(error, MissingAnyRole):
+        await ctx.send("Role '" + ", ".join(secrets.LISTENER_ROLES) + "' is required to run this command.")
         raise error
     elif isinstance(error, BadArgument):
         await ctx.send("usage: `$status [validator id]`. \n"
@@ -129,14 +128,14 @@ async def status_error(ctx, error):
         await ctx.send("Role '" + secrets.LISTENER_ROLES + "' is required to run this command.")
         raise error
     else:
+        await ctx.send("There was error that <@712863455467667526> needs to fix. Please try again later.")
         raw_audit_log(error)
         raise error
 
 @missed.error
 async def missed_error(ctx, error):
-    if isinstance(error, CommandInvokeError):
-        await ctx.send("There was error that <@712863455467667526> needs to fix. Please try again later.")
-        raw_audit_log(str(error))
+    if isinstance(error, MissingAnyRole):
+        await ctx.send("Role '" + ", ".join(secrets.LISTENER_ROLES) + "' is required to run this command.")
         raise error
     elif isinstance(error, BadArgument):
         await ctx.send("usage: `$missed`. \n"
@@ -149,14 +148,14 @@ async def missed_error(ctx, error):
         await ctx.send("Role '" + secrets.LISTENER_ROLES + "' is required to run this command.")
         raise error
     else:
+        await ctx.send("There was error that <@712863455467667526> needs to fix. Please try again later.")
         raw_audit_log(error)
         raise error
 
 @details.error
 async def details_error(ctx, error):
-    if isinstance(error, CommandInvokeError):
-        await ctx.send("There was error that <@712863455467667526> needs to fix. Please try again later.")
-        raw_audit_log(str(error))
+    if isinstance(error, MissingAnyRole):
+        await ctx.send("Role '" + ", ".join(secrets.LISTENER_ROLES) + "' is required to run this command.")
         raise error
     elif isinstance(error, BadArgument):
         await ctx.send("usage: `$details [validator id]`. \n"
@@ -169,14 +168,14 @@ async def details_error(ctx, error):
         await ctx.send("Role '" + secrets.LISTENER_ROLES + "' is required to run this command.")
         raise error
     else:
+        await ctx.send("There was error that <@712863455467667526> needs to fix. Please try again later.")
         raw_audit_log(error)
         raise error
 
 @contacts.error
 async def contacts_error(ctx, error):
-    if isinstance(error, CommandInvokeError):
-        await ctx.send("There was error that <@712863455467667526> needs to fix. Please try again later.")
-        raw_audit_log(str(error))
+    if isinstance(error, MissingAnyRole):
+        await ctx.send("Role '" + ", ".join(secrets.LISTENER_ROLES) + "' is required to run this command.")
         raise error
     elif isinstance(error, BadArgument):
         await ctx.send("usage: `$contacts [validator id]`. \n"
@@ -189,14 +188,14 @@ async def contacts_error(ctx, error):
         await ctx.send("Role '" + secrets.LISTENER_ROLES + "' is required to run this command.")
         raise error
     else:
+        await ctx.send("There was error that <@712863455467667526> needs to fix. Please try again later.")
         raw_audit_log(error)
         raise error
 
 @contacts_add.error
 async def contacts_add_error(ctx, error):
-    if isinstance(error, CommandInvokeError):
-        await ctx.send("There was error that <@712863455467667526> needs to fix. Please try again later.")
-        raw_audit_log(str(error))
+    if isinstance(error, MissingAnyRole):
+        await ctx.send("Role '" + ", ".join(secrets.LISTENER_ROLES) + "' is required to run this command.")
         raise error
     elif isinstance(error, BadArgument):
         await ctx.send("usage: `$contacts-add [validator id] @user1 (@user2...)`. \n"
@@ -209,14 +208,14 @@ async def contacts_add_error(ctx, error):
         await ctx.send("Role '" + secrets.LISTENER_ROLES + "' is required to run this command.")
         raise error
     else:
+        await ctx.send("There was error that <@712863455467667526> needs to fix. Please try again later.")
         raw_audit_log(error)
         raise error
 
 @contacts_remove.error
 async def contacts_remove_error(ctx, error):
-    if isinstance(error, CommandInvokeError):
-        await ctx.send("There was error that <@712863455467667526> needs to fix. Please try again later.")
-        raw_audit_log(str(error))
+    if isinstance(error, MissingAnyRole):
+        await ctx.send("Role '" + ", ".join(secrets.LISTENER_ROLES) + "' is required to run this command.")
         raise error
     elif isinstance(error, BadArgument):
         await ctx.send("usage: `$contacts-remove [validator id] @user1 (@user2...)`. \n"
@@ -229,6 +228,7 @@ async def contacts_remove_error(ctx, error):
         await ctx.send("Role '" + secrets.LISTENER_ROLES + "' is required to run this command.")
         raise error
     else:
+        await ctx.send("There was error that <@712863455467667526> needs to fix. Please try again later.")
         raw_audit_log(error)
         raise error
 
