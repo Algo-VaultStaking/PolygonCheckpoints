@@ -21,8 +21,8 @@ async def on_ready():
     print("ready")
 
 @bot.command(name='listener', help='')
-@commands.has_any_role("Mod", "team", "admin")
-async def status(ctx):
+@commands.has_any_role("Mod", "admin")
+async def up(ctx):
 
     await ctx.send("Yes")
 
@@ -51,7 +51,7 @@ async def missed(ctx):
 
 @bot.command(name='details', help='$details [validator id]')
 @commands.has_any_role(*secrets.LISTENER_ROLES)
-async def details(ctx, val_id: str):
+async def details(ctx, val_id: int):
     db_connection = get_db_connection()
 
     embed = discord.Embed(title= get_val_name_from_id(db_connection, str(val_id)),
@@ -68,7 +68,7 @@ async def details(ctx, val_id: str):
 
 @bot.command(name='contacts', help='$contacts [validator id]')
 @commands.has_any_role(*secrets.LISTENER_ROLES)
-async def contacts(ctx, val_id: str):
+async def contacts(ctx, val_id: int):
     db_connection = get_db_connection()
     message = get_val_name_from_id(db_connection, str(val_id)) + " has the following contacts: " + \
               get_val_contacts_from_id(db_connection, str(val_id))
