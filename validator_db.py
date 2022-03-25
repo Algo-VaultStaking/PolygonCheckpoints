@@ -35,7 +35,9 @@ def update_validator_data(db_connection, val_id: str):
                 "https://sentinel.matic.network/api/v2/validators/" + str(val_id)).read()
         result = json.loads(contents)["result"]
 
-        name = str(result["name"]).encode("ascii", "ignore").decode() if str(result["name"]) != "None" else ("Anonymous " + str(val_id))
+        name = str(result["name"]).encode("ascii", "ignore").decode() \
+            if (str(result["name"]) != "None" and str(result["name"]) != "") \
+            else ("Anonymous " + str(val_id))
         owner = str(result["owner"])
         signer = str(result["signer"])
         commission = float(result["commissionPercent"])
