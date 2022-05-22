@@ -5,7 +5,8 @@ from logger import raw_audit_log, log
 from discord.ext import commands, tasks
 
 import secrets
-from checkpoint_db import get_latest_saved_checkpoint, get_last_validator_checkpoint, update_validator_checkpoint, set_new_checkpoint
+from checkpoint_db import get_latest_saved_checkpoint, get_last_validator_checkpoint, update_validator_checkpoint, \
+    set_new_checkpoint
 from validator_db import get_val_name_from_id, get_val_contacts_from_id, get_db_connection
 
 token = secrets.DISCORD_TOKEN
@@ -22,13 +23,10 @@ async def on_ready():
 @bot.command(name=':', help='')
 @commands.has_any_role("Mod", "team", "admin")
 async def status(ctx):
-
     await ctx.send("Yes")
 
 
-
-
-@tasks.loop(minutes = 1)
+@tasks.loop(minutes=1)
 async def check_latest_checkpoint():
     log('Checking for new checkpoint')
 
@@ -43,13 +41,14 @@ async def check_latest_checkpoint():
     current_checkpoint = max(estimated_checkpoints)
     saved_checkpoint = get_latest_saved_checkpoint()
 
-    #if there is a new checkpoint we haven't evaluated yet
+    # if there is a new checkpoint we haven't evaluated yet
     if current_checkpoint > saved_checkpoint:
         raw_audit_log("New Checkpoint: " + str(current_checkpoint))
         print("New Checkpoint: " + str(current_checkpoint))
         await get_new_checkpoint(current_checkpoint, saved_checkpoint)
     else:
         print("No New Checkpoint.")
+
 
 #    await update_validator_details()
 
@@ -72,16 +71,24 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
             # notify me
             if i == 37:
                 if current_checkpoint != validator_checkpoint:
-                    await vault_checkpoint_channel.send("<@712863455467667526>, invalid checkpoint: " + str(current_checkpoint))
+                    await vault_checkpoint_channel.send(
+                        "<@712863455467667526>, invalid checkpoint: " + str(current_checkpoint))
 
             # notify if a validator missed a checkpoint
             if (current_checkpoint - validator_checkpoint) in notify_missed_cp:
-                await checkpoint_channel.send(get_val_contacts_from_id(db_connection, str(i)) + ", please check **" + get_val_name_from_id(db_connection, str(i)) + "**, " \
-                                      "it has missed the last " + str((current_checkpoint - validator_checkpoint)) + " checkpoints.")
+                await checkpoint_channel.send(
+                    get_val_contacts_from_id(db_connection, str(i)) + ", please check **" + get_val_name_from_id(
+                        db_connection, str(i)) + "**, " \
+                                                 "it has missed the last " + str(
+                        (current_checkpoint - validator_checkpoint)) + " checkpoints.")
 
             # check if the validator is back in sync
-            elif (current_checkpoint - validator_checkpoint) == 0 and last_saved_checkpoint - get_last_validator_checkpoint(str(i)) >= 1:
-                await checkpoint_channel.send(get_val_contacts_from_id(db_connection, str(i)) + ", " + get_val_name_from_id(db_connection, str(i)) + " is back in sync.")
+            elif (current_checkpoint - validator_checkpoint) == 0 and \
+                    last_saved_checkpoint - get_last_validator_checkpoint(str(i), last_saved_checkpoint) >= 1:
+
+                await checkpoint_channel.send(
+                    get_val_contacts_from_id(db_connection, str(i)) + ", " + get_val_name_from_id(db_connection,
+                                                                                                  str(i)) + " is back in sync.")
 
             # save validator's latest checkpoint
             update_validator_checkpoint(str(i), str(validator_checkpoint))
@@ -92,6 +99,7 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
         await vault_checkpoint_channel.send("Completed Checkpoint: " + str(current_checkpoint))
     raw_audit_log("done")
     db_connection.close()
+
 
 check_latest_checkpoint.start()
 bot.run(token)

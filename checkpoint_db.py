@@ -96,12 +96,14 @@ def get_latest_saved_checkpoint():
     return result
 
 
-def get_last_validator_checkpoint(val_id: str):
+def get_last_validator_checkpoint(val_id: str, last_overall_checkpoint):
     conn = connection()
     cur = conn.cursor()
     validator = "val_" + val_id
-    cur.execute("SELECT MAX(" + validator + ") FROM checkpoint_status;")
+    cur.execute("SELECT MAX(" + validator + ") FROM checkpoint_status WHERE checkpoint_num='" + str(last_overall_checkpoint) + "';")
     result = cur.fetchall()[0][0]
+    if result is None:
+        result = 1000000
     conn.close()
     return result
 
