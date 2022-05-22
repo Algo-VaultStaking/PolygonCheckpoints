@@ -95,7 +95,7 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
 
         except Exception as e:
             raw_audit_log(str(e))
-    if current_checkpoint % 1 == 0:
+    if current_checkpoint % 5 == 0:
         await vault_checkpoint_channel.send("Completed Checkpoint: " + str(current_checkpoint))
     raw_audit_log("done")
     db_connection.close()
