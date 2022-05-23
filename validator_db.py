@@ -69,7 +69,7 @@ def update_validator_data(db_connection, val_id: str):
 
         if abs(delegatedStake - get_val_delegated_stake_from_id(conn, val_id)) >= 5000000000000000000000000:
             message += "**Delegated Stake**: `" + get_val_name_from_id(conn, val_id) + "`'s delegated stake changed from `" + \
-                      str(float(get_val_delegated_stake_from_id(conn, val_id))/1e18) + "` to `" + str(delegatedStake/1e18) + "`.\n"
+                      str("{:,.2f}".format(float(get_val_delegated_stake_from_id(conn, val_id))/1e18)) + "` to `" + str("{:,.2f}".format(delegatedStake/1e18)) + "`.\n"
 
         if activation != get_val_activation_from_id(conn, val_id):
             message += "**Activation**: `" + str(get_val_name_from_id(conn, val_id)) + "` is now active from checkpoint '`" + str(activation) + "`.\n"
