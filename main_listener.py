@@ -20,11 +20,13 @@ async def on_ready():
     raw_audit_log('-----------------')
     print("ready")
 
+
 @bot.command(name='listener', help='')
 @commands.has_any_role("Mod", "admin")
 async def up(ctx):
 
     await ctx.send("Yes")
+
 
 @bot.command(name='status', help='$status [validator id]')
 @commands.has_any_role(*secrets.LISTENER_ROLES)

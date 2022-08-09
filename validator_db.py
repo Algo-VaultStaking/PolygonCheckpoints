@@ -111,8 +111,11 @@ def get_val_name_from_id(db_connection, val_id: str):
     cur = conn.cursor()
     validator = "val_" + val_id
     command = "SELECT name FROM validator_info WHERE val_id = '" + validator + "';"
-    cur.execute(command)
-    result = cur.fetchall()[0][0]
+    try:
+        cur.execute(command)
+        result = cur.fetchall()[0][0]
+    except:
+        result = ""
     return result
 
 
@@ -121,8 +124,11 @@ def get_val_contacts_from_id(db_connection, val_id: str):
     cur = conn.cursor()
     validator = "val_" + val_id
     command = "SELECT contacts FROM validator_info WHERE val_id = '" + validator + "';"
-    cur.execute(command)
-    result = cur.fetchall()[0][0]
+    try:
+        cur.execute(command)
+        result = cur.fetchall()[0][0]
+    except:
+        result = ""
     return result
 
 
@@ -137,7 +143,6 @@ def set_val_contacts_from_id(db_connection, val_id: str, contacts: str):
     cur.execute(command)
     conn.commit()
     
-
 
 def remove_val_contacts_from_id(db_connection, val_id: str, user: str):
     conn = db_connection
@@ -161,8 +166,11 @@ def get_val_commission_percent_from_id(db_connection, val_id: str):
     cur = conn.cursor()
     validator = "val_" + val_id
     command = "SELECT commissionPercent FROM validator_info WHERE val_id = '" + validator + "';"
-    cur.execute(command)
-    result = cur.fetchall()[0][0]
+    try:
+        cur.execute(command)
+        result = cur.fetchall()[0][0]
+    except:
+        result = ""
     
     return result
 
@@ -172,8 +180,11 @@ def get_val_owner_from_id(db_connection, val_id):
     cur = conn.cursor()
     validator = "val_" + val_id
     command = "SELECT owner FROM validator_info WHERE val_id = '" + validator + "';"
-    cur.execute(command)
-    result = cur.fetchall()[0][0]
+    try:
+        cur.execute(command)
+        result = cur.fetchall()[0][0]
+    except:
+        result = ""
     
     return result
 
@@ -183,8 +194,11 @@ def get_val_signer_from_id(db_connection, val_id):
     cur = conn.cursor()
     validator = "val_" + val_id
     command = "SELECT signer FROM validator_info WHERE val_id = '" + validator + "';"
-    cur.execute(command)
-    result = cur.fetchall()[0][0]
+    try:
+        cur.execute(command)
+        result = cur.fetchall()[0][0]
+    except:
+        result = ""
     
     return result
 
@@ -194,8 +208,11 @@ def get_val_self_stake_from_id(db_connection, val_id: str):
     cur = conn.cursor()
     validator = "val_" + val_id
     command = "SELECT selfStake FROM validator_info WHERE val_id = '" + validator + "';"
-    cur.execute(command)
-    result = cur.fetchall()[0][0]
+    try:
+        cur.execute(command)
+        result = cur.fetchall()[0][0]
+    except:
+        result = 0.0
     
     return result
 
@@ -205,8 +222,11 @@ def get_val_delegated_stake_from_id(db_connection, val_id: str):
     cur = conn.cursor()
     validator = "val_" + val_id
     command = "SELECT delegatedStake FROM validator_info WHERE val_id = '" + validator + "';"
-    cur.execute(command)
-    result = cur.fetchall()[0][0]
+    try:
+        cur.execute(command)
+        result = cur.fetchall()[0][0]
+    except:
+        result = 0.0
     
     return result
 
@@ -216,8 +236,11 @@ def get_val_uptime_from_id(db_connection, val_id: str):
     cur = conn.cursor()
     validator = "val_" + val_id
     command = "SELECT uptimePercent FROM validator_info WHERE val_id = '" + validator + "';"
-    cur.execute(command)
-    result = cur.fetchall()[0][0]
+    try:
+        cur.execute(command)
+        result = cur.fetchall()[0][0]
+    except:
+        result = 0
     
     return float(result)
 
@@ -227,8 +250,11 @@ def get_val_missed_latest_checkpoint_from_id(db_connection, val_id: str):
     cur = conn.cursor()
     validator = "val_" + val_id
     command = "SELECT missedLatestCheckpointcount FROM validator_info WHERE val_id = '" + validator + "';"
-    cur.execute(command)
-    result = cur.fetchall()[0][0]
+    try:
+        cur.execute(command)
+        result = cur.fetchall()[0][0]
+    except:
+        result = ""
     
     return result
 
@@ -238,8 +264,11 @@ def get_val_activation_from_id(db_connection, val_id):
     cur = conn.cursor()
     validator = "val_" + val_id
     command = "SELECT activationEpoch FROM validator_info WHERE val_id = '" + validator + "';"
-    cur.execute(command)
-    result = cur.fetchall()[0][0]
+    try:
+        cur.execute(command)
+        result = cur.fetchall()[0][0]
+    except:
+        result = ""
     
     return result
 
@@ -249,8 +278,10 @@ def get_val_deactivation_from_id(db_connection, val_id):
     cur = conn.cursor()
     validator = "val_" + val_id
     command = "SELECT deactivationEpoch FROM validator_info WHERE val_id = '" + validator + "';"
-    cur.execute(command)
-    result = cur.fetchall()[0][0]
+    try:
+        cur.execute(command)
+        result = cur.fetchall()[0][0]
+    except:
+        result = ""
     
     return result
-
