@@ -75,7 +75,7 @@ def update_validator_data(db_connection, val_id: str):
             message += "**Activation**: `" + str(get_val_name_from_id(conn, val_id)) + "` is now active from checkpoint '`" + str(activation) + "`.\n"
 
         if deactivation != get_val_deactivation_from_id(conn, val_id):
-            message += "**Unbond**: `" + str(get_val_name_from_id(conn, val_id)) + "` has unbonded effective checkpoint `" + str(deactivation) + "`.\n cc: <@712863455467667526>"
+            message += "**Unbond**: `" + str(get_val_name_from_id(conn, val_id)) + "` has unbonded effective checkpoint `" + str(deactivation) + "`. cc: <@712863455467667526>\n"
 
         command = "UPDATE validator_info " \
                   "SET name = '" + name + \
