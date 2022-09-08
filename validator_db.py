@@ -72,10 +72,10 @@ def update_validator_data(db_connection, val_id: str):
                       str("{:,.2f}".format(float(get_val_delegated_stake_from_id(conn, val_id))/1e18)) + "` to `" + str("{:,.2f}".format(delegatedStake/1e18)) + "`.\n"
 
         if activation != get_val_activation_from_id(conn, val_id):
-            message += "**Activation**: `" + str(get_val_name_from_id(conn, val_id)) + "` is now active from checkpoint '`" + str(activation) + "`.\n"
+            message += "**Activation**: `" + str(get_val_name_from_id(conn, val_id)) + "` is now active from checkpoint `" + str(activation) + "`.\n"
 
         if deactivation != get_val_deactivation_from_id(conn, val_id):
-            message += "**Unbond**: `" + str(get_val_name_from_id(conn, val_id)) + "` has unbonded effective checkpoint `" + str(deactivation) + "`. cc: <@712863455467667526>\n"
+            message += "**Unbond**: `" + str(get_val_name_from_id(conn, val_id)) + "` has unbonded effective checkpoint `" + str(deactivation) + "`. cc: <@712863455467667526> \n"
 
         command = "UPDATE validator_info " \
                   "SET name = '" + name + \
