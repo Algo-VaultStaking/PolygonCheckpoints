@@ -63,44 +63,43 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
 
     set_new_checkpoint(str(current_checkpoint))
     for i in range(1, secrets.total_validators + 1):
-        if get_val_status_from_id(get_val_status_from_id, str(i)) == "unstaked":
-            continue
-        contents = urllib.request.urlopen(
-            "https://sentinel.matic.network/api/v2/validators/" + str(i) + "/checkpoints-signed").read()
-        try:
-            validator_checkpoint = int(json.loads(contents)["result"][0]["checkpointNumber"])
+        if get_val_status_from_id(get_val_status_from_id, str(i)) == "active":
+            contents = urllib.request.urlopen(
+                "https://sentinel.matic.network/api/v2/validators/" + str(i) + "/checkpoints-signed").read()
+            try:
+                validator_checkpoint = int(json.loads(contents)["result"][0]["checkpointNumber"])
 
-            # notify me
-            if i == 37:
-                if current_checkpoint != validator_checkpoint:
-                    await vault_checkpoint_channel.send(
-                        "<@712863455467667526>, invalid checkpoint: " + str(current_checkpoint))
+                # notify me
+                if i == 37:
+                    if current_checkpoint != validator_checkpoint:
+                        await vault_checkpoint_channel.send(
+                            "<@712863455467667526>, invalid checkpoint: " + str(current_checkpoint))
 
-            # notify if a validator missed a checkpoint
-            if (current_checkpoint - validator_checkpoint) in notify_missed_cp:
-                await checkpoint_channel.send(
-                    get_val_contacts_from_id(db_connection, str(i)) + ", please check **" + get_val_name_from_id(
-                        db_connection, str(i)) + "**, " \
-                                                 "it has missed the last " + str(
-                        (current_checkpoint - validator_checkpoint)) + " checkpoints.")
+                # notify if a validator missed a checkpoint
+                if (current_checkpoint - validator_checkpoint) in notify_missed_cp:
+                    await checkpoint_channel.send(
+                        get_val_contacts_from_id(db_connection, str(i)) + ", please check **" + get_val_name_from_id(
+                            db_connection, str(i)) + "**, " \
+                                                     "it has missed the last " + str(
+                            (current_checkpoint - validator_checkpoint)) + " checkpoints.")
 
-            # check if the validator is back in sync
-            elif (current_checkpoint - validator_checkpoint) == 0 and \
-                    last_saved_checkpoint - get_last_validator_checkpoint(str(i), last_saved_checkpoint) >= 1:
+                # check if the validator is back in sync
+                elif (current_checkpoint - validator_checkpoint) == 0 and \
+                        last_saved_checkpoint - get_last_validator_checkpoint(str(i), last_saved_checkpoint) >= 1:
 
-                await checkpoint_channel.send(
-                    get_val_contacts_from_id(db_connection, str(i)) + ", " + get_val_name_from_id(db_connection,
-                                                                                                  str(i)) + " is back in sync.")
+                    await checkpoint_channel.send(
+                        get_val_contacts_from_id(db_connection, str(i)) + ", " + get_val_name_from_id(db_connection,
+                                                                                                      str(i)) + " is back in sync.")
 
-            # save validator's latest checkpoint
-            update_validator_checkpoint(str(i), str(validator_checkpoint))
+                # save validator's latest checkpoint
+                update_validator_checkpoint(str(i), str(validator_checkpoint))
 
-        except Exception as e:
-            raw_audit_log(str(e))
-    if current_checkpoint % 5 == 0:
-        await vault_checkpoint_channel.send("Completed Checkpoint: " + str(current_checkpoint))
-    raw_audit_log("done")
-    db_connection.close()
+            except Exception as e:
+                raw_audit_log(str(e))
+        if current_checkpoint % 5 == 0:
+            await vault_checkpoint_channel.send("Completed Checkpoint: " + str(current_checkpoint))
+        raw_audit_log("done")
+        db_connection.close()
 
 
 check_latest_checkpoint.start()
