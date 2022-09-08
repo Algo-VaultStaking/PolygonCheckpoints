@@ -41,7 +41,7 @@ def update_validator_data(db_connection, val_id: str):
         owner = str(result["owner"])
         signer = str(result["signer"])
         commission = float(result["commissionPercent"])
-        selfStake = int(result["selfStake"])
+        selfStake = max(int(result["selfStake"]), get_val_self_stake_from_id(conn, val_id))
         delegatedStake = int(result["delegatedStake"])
         # str(result["isInAuction"])
         # str(result["auctionAmount"])
