@@ -285,3 +285,17 @@ def get_val_deactivation_from_id(db_connection, val_id):
         result = ""
     
     return result
+
+
+def get_val_status_from_id(db_connection, val_id):
+    conn = db_connection
+    cur = conn.cursor()
+    validator = "val_" + val_id
+    command = "SELECT status FROM validator_info WHERE val_id = '" + validator + "';"
+    try:
+        cur.execute(command)
+        result = cur.fetchall()[0][0]
+    except:
+        result = ""
+
+    return result

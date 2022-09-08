@@ -7,7 +7,7 @@ from discord.ext import commands, tasks
 import secrets
 from checkpoint_db import get_latest_saved_checkpoint, get_last_validator_checkpoint, update_validator_checkpoint, \
     set_new_checkpoint
-from validator_db import get_val_name_from_id, get_val_contacts_from_id, get_db_connection
+from validator_db import get_val_name_from_id, get_val_contacts_from_id, get_db_connection, get_val_status_from_id
 
 token = secrets.DISCORD_TOKEN
 bot = commands.Bot(command_prefix='cp')
@@ -63,6 +63,8 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
 
     set_new_checkpoint(str(current_checkpoint))
     for i in range(1, secrets.total_validators + 1):
+        if get_val_status_from_id(get_val_status_from_id, str(i)) == "unstaked":
+            continue
         contents = urllib.request.urlopen(
             "https://sentinel.matic.network/api/v2/validators/" + str(i) + "/checkpoints-signed").read()
         try:
