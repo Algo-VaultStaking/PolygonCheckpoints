@@ -63,7 +63,7 @@ def update_validator_data(db_connection, val_id: str):
             message += "**Commission**: `" + get_val_name_from_id(conn, val_id) + "` changed commission from `" + \
                        str(get_val_commission_percent_from_id(conn, val_id)) + "` to `" + str(commission) + "`.\n"
 
-        if selfStake != get_val_self_stake_from_id(conn, val_id):
+        if selfStake > get_val_self_stake_from_id(conn, val_id):
             message += "**Self Stake**: `" + get_val_name_from_id(conn, val_id) + "` changed self stake from `" + \
                        str("{:,.2f}".format(float(get_val_self_stake_from_id(conn, val_id))/1e18)) + "` to `" + str("{:,.2f}".format(float(selfStake)/1e18)) + "`.\n"
 
