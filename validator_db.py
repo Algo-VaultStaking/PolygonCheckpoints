@@ -81,13 +81,13 @@ def update_validator_data(db_connection, val_id: str):
                   "SET name = '" + name + \
                 "', owner = '" + owner + \
                 "', signer = '" + signer + \
-                "', commissionPercent = '" + str(result["commissionPercent"]) + \
+                "', commissionPercent = '" + str(commission) + \
                 "', signerPublicKey = '" + str(result["signerPublicKey"]) + \
-                "', selfStake = '" + str(result["selfStake"]) + \
-                "', delegatedStake = '" + str(result["delegatedStake"]) + \
+                "', selfStake = '" + str(selfStake) + \
+                "', delegatedStake = '" + str(delegatedStake) + \
                 "', claimedReward = '" + str(result["claimedReward"]) + \
-                "', activationEpoch = '" + str(result["activationEpoch"]) + \
-                "', deactivationEpoch = '" + str(result["deactivationEpoch"]) + \
+                "', activationEpoch = '" + str(activation) + \
+                "', deactivationEpoch = '" + str(deactivation) + \
                 "', jailEndEpoch = '" + str(result["jailEndEpoch"]) + \
                 "', status = '" + str(result["status"]) + \
                 "', contractAddress = '" + str(result["contractAddress"]) + \
@@ -214,7 +214,7 @@ def get_val_self_stake_from_id(db_connection, val_id: str):
     except:
         result = 0.0
     
-    return result
+    return int(result)
 
 
 def get_val_delegated_stake_from_id(db_connection, val_id: str):
@@ -228,7 +228,7 @@ def get_val_delegated_stake_from_id(db_connection, val_id: str):
     except:
         result = 0.0
     
-    return result
+    return int(result)
 
 
 def get_val_uptime_from_id(db_connection, val_id: str):
@@ -270,7 +270,7 @@ def get_val_activation_from_id(db_connection, val_id):
     except:
         result = ""
     
-    return result
+    return int(result)
 
 
 def get_val_deactivation_from_id(db_connection, val_id):
@@ -284,7 +284,7 @@ def get_val_deactivation_from_id(db_connection, val_id):
     except:
         result = ""
     
-    return result
+    return int(result)
 
 
 def get_val_status_from_id(db_connection, val_id):
@@ -299,3 +299,6 @@ def get_val_status_from_id(db_connection, val_id):
         result = ""
 
     return result
+
+
+update_validator_data(get_db_connection(), 4)
