@@ -29,7 +29,6 @@ async def up(ctx):
 
 
 @bot.command(name='status', help='$status [validator id]')
-@commands.has_any_role(*secrets.LISTENER_ROLES)
 async def status(ctx, val_id: int):
     db_connection = get_db_connection()
     no_of_checkpoints = (100-get_val_uptime_from_id(db_connection, str(val_id)))*2
@@ -52,7 +51,6 @@ async def missed(ctx):
 
 
 @bot.command(name='details', help='$details [validator id]')
-@commands.has_any_role(*secrets.LISTENER_ROLES)
 async def details(ctx, val_id: int):
     db_connection = get_db_connection()
 
@@ -69,7 +67,6 @@ async def details(ctx, val_id: int):
 
 
 @bot.command(name='contacts', help='$contacts [validator id]')
-@commands.has_any_role(*secrets.LISTENER_ROLES)
 async def contacts(ctx, val_id: int):
     db_connection = get_db_connection()
     message = get_val_name_from_id(db_connection, str(val_id)) + " has the following contacts: " + \
@@ -78,7 +75,7 @@ async def contacts(ctx, val_id: int):
 
 
 @bot.command(name='contacts-add', help='$contacts-add [validator id] @user1 (@user2...)')
-@commands.has_any_role(*secrets.LISTENER_ROLES)
+# @commands.has_any_role(*secrets.LISTENER_ROLES)
 async def contacts_add(ctx, val_id: int, user_one, user_two="", user_three="", user_four="", user_five=""):
     db_connection = get_db_connection()
     contact = user_one
@@ -100,7 +97,7 @@ async def contacts_add(ctx, val_id: int, user_one, user_two="", user_three="", u
 
 
 @bot.command(name='contacts-remove', help='$contacts-remove [validator id] @user1 (@user2...)')
-@commands.has_any_role(*secrets.LISTENER_ROLES)
+# @commands.has_any_role(*secrets.LISTENER_ROLES)
 async def contacts_remove(ctx, val_id: int, *users):
     db_connection = get_db_connection()
     for user in users:

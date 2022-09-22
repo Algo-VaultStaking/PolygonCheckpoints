@@ -57,6 +57,7 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
     db_connection = get_db_connection()
     checkpoint_channel = bot.get_channel(id=secrets.MISSED_CHECKPOINTS_CHANNEL)
     vault_checkpoint_channel = bot.get_channel(id=secrets.VAULT_CHECKPOINT_CHANNEL)
+    shard_checkpoint_channel = bot.get_channel(id=secrets.SHARD_CHECKPOINT_CHANNEL)
     notify_missed_cp = [0, 1, 2, 5, 9, 19, 34, 49, 99, 199]
     for i in range(len(notify_missed_cp)):
         notify_missed_cp[i] += (current_checkpoint - last_saved_checkpoint)
@@ -76,17 +77,29 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
                     await vault_checkpoint_channel.send(
                         "<@712863455467667526>, invalid checkpoint: " + str(current_checkpoint))
 
+            # notify Shard Labs
+            if i == 59:
+                if current_checkpoint != validator_checkpoint:
+                    await shard_checkpoint_channel.send(
+                        get_val_contacts_from_id(db_connection, str(i)) + ", please check **" + get_val_name_from_id(
+                            db_connection, str(i)) + "**, it has missed the last " + str(
+                            (current_checkpoint - validator_checkpoint)) + " checkpoints.")
+
             # notify if a validator missed a checkpoint
             if (current_checkpoint - validator_checkpoint) in notify_missed_cp:
                 await checkpoint_channel.send(
                     get_val_contacts_from_id(db_connection, str(i)) + ", please check **" + get_val_name_from_id(
-                        db_connection, str(i)) + "**, " \
-                                                 "it has missed the last " + str(
+                        db_connection, str(i)) + "**, it has missed the last " + str(
                         (current_checkpoint - validator_checkpoint)) + " checkpoints.")
 
             # check if the validator is back in sync
             elif (current_checkpoint - validator_checkpoint) == 0 and \
                     last_saved_checkpoint - get_last_validator_checkpoint(str(i), last_saved_checkpoint) >= 1:
+                # notify Shard Labs
+                if i == 59:
+                    if current_checkpoint != validator_checkpoint:
+                        await shard_checkpoint_channel.send(get_val_contacts_from_id(db_connection, str(i)) + ", " + get_val_name_from_id(db_connection,
+                                                                                                  str(i)) + " is back in sync.")
 
                 await checkpoint_channel.send(
                     get_val_contacts_from_id(db_connection, str(i)) + ", " + get_val_name_from_id(db_connection,
