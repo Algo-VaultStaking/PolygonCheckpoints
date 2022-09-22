@@ -45,6 +45,17 @@ async def check_latest_checkpoint():
     if current_checkpoint > saved_checkpoint:
         raw_audit_log("New Checkpoint: " + str(current_checkpoint))
         print("New Checkpoint: " + str(current_checkpoint))
+
+        ### DELETE
+
+        if current_checkpoint == 36855:
+            shard_checkpoint_channel = bot.get_channel(id=secrets.SHARD_CHECKPOINT_CHANNEL)
+            vault_checkpoint_channel = bot.get_channel(id=secrets.VAULT_CHECKPOINT_CHANNEL)
+            await shard_checkpoint_channel.send("This is a test message. We just passed checkpoint 36855!")
+            await vault_checkpoint_channel.send("This is a test message. We just passed checkpoint 36855!")
+
+        ### DELETE
+
         await get_new_checkpoint(current_checkpoint, saved_checkpoint)
     else:
         print("No New Checkpoint.")
