@@ -2,6 +2,7 @@ import json
 import urllib.request
 from logger import raw_audit_log, log
 
+import discord
 from discord.ext import commands, tasks
 
 import secrets
@@ -112,6 +113,7 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
             raw_audit_log(str(e))
     if current_checkpoint % 5 == 0:
         await vault_checkpoint_channel.send("Completed Checkpoint: " + str(current_checkpoint))
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"Checkpoint: {current_checkpoint}"))
     raw_audit_log("done")
     db_connection.close()
 
