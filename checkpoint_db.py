@@ -1,3 +1,4 @@
+import http.client
 import json
 import smtplib
 import urllib.request
@@ -164,3 +165,55 @@ Subject: New Checkpoint\n
         raw_audit_log("Email sent!")
     except Exception as ex:
         raw_audit_log(str(ex))
+
+
+def create_pagerduty_alert(num_missed: int):
+    json_payload = {
+      "payload": {
+        "summary": f"Polygon validator has missed {num_missed} checkpoints.",
+        "source": "Polygon Checkpoints",
+        "severity": "critical"
+      },
+      "routing_key": "64737e7a4bbf490ad09f45d7aeffc3ce",
+      "dedup_key": "polygon_checkpoints",
+      "event_action": "trigger",
+      "client": "Polygon"
+    }
+
+    headers = {
+        'Content-Type': "application/json",
+        'Accept': "application/vnd.pagerduty+json;version=2",
+        'From': "Polygon",
+        'Authorization': "Token token=u+mosdf7qQHCs92MBpsg"
+    }
+    conn = http.client.HTTPSConnection("events.pagerduty.com")
+    conn.request("POST", "/v2/enqueue", json.dumps(json_payload), headers)
+    res = conn.getresponse()
+    data = res.read()
+    print(data.decode("utf-8"))
+
+
+def resolve_pagerduty_alert():
+    json_payload = {
+      "payload": {
+        "summary": "Polygon validator signed the latest checkpoint.",
+        "source": "Polygon Checkpoints",
+        "severity": "critical"
+      },
+      "routing_key": "64737e7a4bbf490ad09f45d7aeffc3ce",
+      "dedup_key": "polygon_checkpoints",
+      "event_action": "resolve",
+      "client": "Polygon"
+    }
+
+    headers = {
+        'Content-Type': "application/json",
+        'Accept': "application/vnd.pagerduty+json;version=2",
+        'From': "Polygon",
+        'Authorization': "Token token=u+mosdf7qQHCs92MBpsg"
+    }
+    conn = http.client.HTTPSConnection("events.pagerduty.com")
+    conn.request("POST", "/v2/enqueue", json.dumps(json_payload), headers)
+    res = conn.getresponse()
+    data = res.read()
+    print(data.decode("utf-8"))

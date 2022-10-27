@@ -1,3 +1,4 @@
+import datetime
 import json
 import urllib.request
 import mariadb
@@ -299,6 +300,3 @@ def get_val_status_from_id(db_connection, val_id):
         result = ""
 
     return result
-
-
-update_validator_data(get_db_connection(), 4)

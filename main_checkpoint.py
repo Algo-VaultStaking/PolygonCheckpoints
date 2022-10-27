@@ -1,13 +1,14 @@
 import json
 import urllib.request
 from logger import raw_audit_log, log
+import http.client
 
 import discord
 from discord.ext import commands, tasks
 
 import secrets
 from checkpoint_db import get_latest_saved_checkpoint, get_last_validator_checkpoint, update_validator_checkpoint, \
-    set_new_checkpoint
+    set_new_checkpoint, create_pagerduty_alert
 from validator_db import get_val_name_from_id, get_val_contacts_from_id, get_db_connection, get_val_status_from_id
 
 token = secrets.DISCORD_TOKEN
@@ -77,6 +78,8 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
                 if current_checkpoint != validator_checkpoint:
                     await vault_checkpoint_channel.send(
                         "<@712863455467667526>, invalid checkpoint: " + str(current_checkpoint))
+                    create_pagerduty_alert(int(current_checkpoint - validator_checkpoint))
+
 
             # notify Shard Labs
             if i == 54:
@@ -96,8 +99,13 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
             # check if the validator is back in sync
             elif (current_checkpoint - validator_checkpoint) == 0 and \
                     last_saved_checkpoint - get_last_validator_checkpoint(str(i), last_saved_checkpoint) >= 1:
+                # notify me
+                if i == 37:
+                    if current_checkpoint != validator_checkpoint:
+                        await vault_checkpoint_channel.send(get_val_contacts_from_id(db_connection, str(i)) + ", " + get_val_name_from_id(db_connection,
+                                                                                                  str(i)) + " is back in sync.")
                 # notify Shard Labs
-                if i == 59:
+                if i == 54:
                     if current_checkpoint != validator_checkpoint:
                         await shard_checkpoint_channel.send(get_val_contacts_from_id(db_connection, str(i)) + ", " + get_val_name_from_id(db_connection,
                                                                                                   str(i)) + " is back in sync.")
