@@ -74,12 +74,11 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
             validator_checkpoint = int(json.loads(contents)["result"][0]["checkpointNumber"])
 
             # notify me
-            if i == 37:
+            if i == 37 or i == 23:
                 if current_checkpoint != validator_checkpoint:
                     await vault_checkpoint_channel.send(
-                        "<@712863455467667526>, invalid checkpoint: " + str(current_checkpoint))
-                    create_pagerduty_alert(int(current_checkpoint - validator_checkpoint))
-
+                        f"<@712863455467667526>, invalid checkpoint {i}: {str(current_checkpoint)}")
+                    create_pagerduty_alert(i, int(current_checkpoint - validator_checkpoint))
 
             # notify Shard Labs
             if i == 54:
@@ -119,7 +118,7 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
 
         except Exception as e:
             raw_audit_log(str(e))
-    if current_checkpoint % 5 == 0:
+    if current_checkpoint % 20 == 0:
         await vault_checkpoint_channel.send("Completed Checkpoint: " + str(current_checkpoint))
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"Checkpoint: {current_checkpoint}"))
     raw_audit_log("done")

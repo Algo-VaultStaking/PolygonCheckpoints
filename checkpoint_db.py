@@ -167,10 +167,10 @@ Subject: New Checkpoint\n
         raw_audit_log(str(ex))
 
 
-def create_pagerduty_alert(num_missed: int):
+def create_pagerduty_alert(validator: int, num_missed: int):
     json_payload = {
       "payload": {
-        "summary": f"Polygon validator has missed {num_missed} checkpoints.",
+        "summary": f"Polygon validator {validator} has missed {num_missed} checkpoints.",
         "source": "Polygon Checkpoints",
         "severity": "critical"
       },
