@@ -74,7 +74,7 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
             validator_checkpoint = int(json.loads(contents)["result"][0]["checkpointNumber"])
 
             # notify me
-            if i == 37 or i == 23:
+            if i == 144 or i == 37 or i == 23:
                 if current_checkpoint != validator_checkpoint:
                     await vault_checkpoint_channel.send(
                         f"<@712863455467667526>, invalid checkpoint {i}: {str(current_checkpoint)}")
