@@ -1,4 +1,3 @@
-
 from logger import raw_audit_log
 
 from discord.ext import commands, tasks
@@ -17,13 +16,14 @@ async def on_ready():
     raw_audit_log('-----------------')
     print("ready")
 
+
 @bot.command(name='updates', help='')
 @commands.has_any_role("Mod", "team", "admin")
 async def status(ctx):
-
     await ctx.send("Yes")
 
-@tasks.loop(minutes = 5)
+
+@tasks.loop(minutes=5)
 async def update_validator_details():
     db_connection = get_db_connection()
 
@@ -40,6 +40,7 @@ async def update_validator_details():
             print("Error in main_val: " + str(e))
     db_connection.close()
     return
+
 
 update_validator_details.start()
 bot.run(token)
