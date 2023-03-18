@@ -3,6 +3,7 @@ import urllib.request
 from logger import raw_audit_log, log
 import http.client
 
+
 import discord
 from discord.ext import commands, tasks
 
@@ -32,12 +33,18 @@ async def status(ctx):
 async def check_latest_checkpoint():
     log('Checking for new checkpoint')
 
-    trusted_validators = [1, 2, 3, 4, 5, 12, 13, 15, 32, 37, 97, 123]
+    trusted_validators = [12, 13, 23, 31, 32, 37, 77, 82, 123]
     estimated_checkpoints = []
 
     for index in trusted_validators:
-        contents = urllib.request.urlopen(
-            "https://sentinel.matic.network/api/v2/validators/" + str(index) + "/checkpoints-signed").read()
+        url = f"https://staking-api.polygon.technology/api/v2/validators/{index}/checkpoints-signed"
+        hdr = {
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Connection': 'keep-alive'}
+
+        request_site = urllib.request.Request(url, headers=hdr)
+        contents = urllib.request.urlopen(request_site).read()
         estimated_checkpoints.append(json.loads(contents)["result"][0]["checkpointNumber"])
 
     current_checkpoint = max(estimated_checkpoints)
@@ -68,13 +75,19 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
     for i in range(1, secrets.total_validators + 1):
         if get_val_status_from_id(db_connection, str(i)) == "unstaked":
             continue
-        contents = urllib.request.urlopen(
-            "https://sentinel.matic.network/api/v2/validators/" + str(i) + "/checkpoints-signed").read()
+        url = f"https://staking-api.polygon.technology/api/v2/validators/{i}/checkpoints-signed"
+        hdr = {
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Connection': 'keep-alive'}
+
+        request_site = urllib.request.Request(url, headers=hdr)
+        contents = urllib.request.urlopen(request_site).read()
         try:
             validator_checkpoint = int(json.loads(contents)["result"][0]["checkpointNumber"])
 
             # notify me
-            if i == 144 or i == 37 or i == 23:
+            if i == 37 or i == 23:
                 if current_checkpoint != validator_checkpoint:
                     await vault_checkpoint_channel.send(
                         f"<@712863455467667526>, invalid checkpoint {i}: {str(current_checkpoint)}")

@@ -32,8 +32,15 @@ def update_validator_data(db_connection, val_id: str):
     val_id = str(val_id)
     message = ""
     try:
-        contents = urllib.request.urlopen(
-                "https://sentinel.matic.network/api/v2/validators/" + str(val_id)).read()
+        url = f"https://staking-api.polygon.technology/api/v2/validators/{val_id}"
+        hdr = {
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Connection': 'keep-alive'}
+
+        request_site = urllib.request.Request(url, headers=hdr)
+        contents = urllib.request.urlopen(request_site).read()
+
         result = json.loads(contents)["result"]
 
         name = str(result["name"]).encode("ascii", "ignore").decode() \
@@ -58,7 +65,7 @@ def update_validator_data(db_connection, val_id: str):
 
         if signer != get_val_signer_from_id(conn, val_id):
             message += "**Signer Address**: `" + get_val_name_from_id(conn, val_id) + "` changed signer address from `" + \
-                       get_val_signer_from_id(conn, val_id) + "` to `" + owner + "`.\n"
+                       get_val_signer_from_id(conn, val_id) + "` to `" + signer + "`.\n"
 
         if commission != get_val_commission_percent_from_id(conn, val_id):
             message += "**Commission**: `" + get_val_name_from_id(conn, val_id) + "` changed commission from `" + \
