@@ -1,3 +1,4 @@
+import datetime
 import json
 import urllib.request
 from logger import raw_audit_log, log
@@ -31,7 +32,6 @@ async def status(ctx):
 
 @tasks.loop(minutes=1)
 async def check_latest_checkpoint():
-    log('Checking for new checkpoint')
 
     trusted_validators = [12, 13, 23, 31, 32, 37, 77, 82, 123]
     estimated_checkpoints = []
@@ -52,11 +52,11 @@ async def check_latest_checkpoint():
 
     # if there is a new checkpoint we haven't evaluated yet
     if current_checkpoint > saved_checkpoint:
-        raw_audit_log("New Checkpoint: " + str(current_checkpoint))
+        raw_audit_log(f"{datetime.datetime.now()}: New Checkpoint: {str(current_checkpoint)}")
         print("New Checkpoint: " + str(current_checkpoint))
         await get_new_checkpoint(current_checkpoint, saved_checkpoint)
     else:
-        print("No New Checkpoint.")
+        print(f"{datetime.datetime.now()}: No New Checkpoint.")
 
 
 #    await update_validator_details()
