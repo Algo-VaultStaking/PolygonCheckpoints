@@ -114,7 +114,7 @@ def set_new_checkpoint(checkpoint: str):
     cur = conn.cursor()
 
     command = "INSERT INTO checkpoint_status VALUES (" + checkpoint + ", '" + str(datetime.now()) + "', "
-    for i in range(1, secrets.total_validators):
+    for i in range(1, secrets.total_validators+1):
         command = command + "Null, "
 
     command = command[:-2] + ");"
