@@ -53,7 +53,7 @@ async def check_latest_checkpoint():
     # if there is a new checkpoint we haven't evaluated yet
     if current_checkpoint > saved_checkpoint:
         raw_audit_log(f"{datetime.datetime.now()}: New Checkpoint: {str(current_checkpoint)}")
-        print("New Checkpoint: " + str(current_checkpoint))
+        print(f"{datetime.datetime.now()}: New Checkpoint: " + str(current_checkpoint))
         await get_new_checkpoint(current_checkpoint, saved_checkpoint)
     else:
         print(f"{datetime.datetime.now()}: No New Checkpoint.")
@@ -103,10 +103,11 @@ async def get_new_checkpoint(current_checkpoint: int, last_saved_checkpoint: int
 
             # notify if a validator missed a checkpoint
             if (current_checkpoint - validator_checkpoint) in notify_missed_cp:
-                await checkpoint_channel.send(
-                    get_val_contacts_from_id(db_connection, str(i)) + ", please check **" + get_val_name_from_id(
-                        db_connection, str(i)) + "**, it has missed the last " + str(
-                        (current_checkpoint - validator_checkpoint)) + " checkpoints.")
+                if i != 14:
+                    await checkpoint_channel.send(
+                        get_val_contacts_from_id(db_connection, str(i)) + ", please check **" + get_val_name_from_id(
+                            db_connection, str(i)) + "**, it has missed the last " + str(
+                            (current_checkpoint - validator_checkpoint)) + " checkpoints.")
 
             # check if the validator is back in sync
             elif (current_checkpoint - validator_checkpoint) == 0 and \
