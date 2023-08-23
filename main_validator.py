@@ -23,7 +23,7 @@ async def status(ctx):
     await ctx.send("Yes")
 
 
-@tasks.loop(minutes=5)
+@tasks.loop(minutes=60)
 async def update_validator_details():
     db_connection = get_db_connection()
 

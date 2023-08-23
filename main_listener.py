@@ -31,8 +31,8 @@ async def up(ctx):
 @bot.command(name='status', help='$status [validator id]')
 async def status(ctx, val_id: int):
     db_connection = get_db_connection()
-    no_of_checkpoints = (100-get_val_uptime_from_id(db_connection, str(val_id)))*2
-    message = get_val_name_from_id(db_connection, str(val_id)) + " has missed " + str(no_of_checkpoints) + " out of the last 200 checkpoints. \n" \
+    no_of_checkpoints = (100-get_val_uptime_from_id(db_connection, str(val_id)))*7
+    message = get_val_name_from_id(db_connection, str(val_id)) + " has missed " + str(no_of_checkpoints) + " out of the last 700 checkpoints. \n" \
               "Validator has " + ("not " if get_val_missed_latest_checkpoint_from_id(db_connection, str(val_id)) > 0 else "") + \
               "signed the latest checkpoint."
     await ctx.send(message)
